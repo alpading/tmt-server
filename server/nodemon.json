@@ -1,0 +1,6 @@
+{
+  "watch": ["src"],
+  "ext": "ts,json",
+  "delay": 500,
+  "exec": "lsof -ti tcp:3000 | xargs kill -9 2>/dev/null; sleep 0.5; exec ts-node -r tsconfig-paths/register src/main.ts"
+}

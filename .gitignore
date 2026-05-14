@@ -1,0 +1,26 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+
+# environment
+.env
+.env.*
+!.env.example
+
+# TypeScript incremental build cache
+*.tsbuildinfo
+
+# test coverage
+coverage/
+
+# macOS
+.DS_Store
+
+# Claude Code
+.claude/
+
+# logs
+*.log
+npm-debug.log*
