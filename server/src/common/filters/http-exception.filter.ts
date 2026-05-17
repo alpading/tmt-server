@@ -23,7 +23,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
       message = body.message;
     } else if (exception instanceof HttpException) {
       status = exception.getStatus();
-      code = status === HttpStatus.NOT_FOUND ? ERROR_CODE.ROUTE_NOT_FOUND : ERROR_CODE.INTERNAL_SERVER_ERROR;
+      if (status === HttpStatus.NOT_FOUND) code = ERROR_CODE.ROUTE_NOT_FOUND;
+      else if (status === HttpStatus.UNAUTHORIZED) code = ERROR_CODE.UNAUTHORIZED;
+      else if (status === HttpStatus.FORBIDDEN) code = ERROR_CODE.FORBIDDEN;
+      else code = ERROR_CODE.INTERNAL_SERVER_ERROR;
       message = exception.message;
     } else {
       status = HttpStatus.INTERNAL_SERVER_ERROR;
