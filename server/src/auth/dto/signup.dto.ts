@@ -4,6 +4,7 @@ import { GenderEnum, HormoneEnum, MbtiEnum } from '../../common/enums';
 
 export class PreferencesDto {
   @IsInt() @Min(1) @Max(3) resOily: number;
+  @IsInt() @Min(1) @Max(3) resMild: number;
   @IsInt() @Min(1) @Max(3) resClean: number;
   @IsInt() @Min(1) @Max(3) resStim: number;
   @IsInt() @Min(1) @Max(3) resSpicy: number;

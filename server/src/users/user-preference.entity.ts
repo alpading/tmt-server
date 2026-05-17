@@ -11,6 +11,7 @@ export class UserPreference {
   user: User;
 
   @Column({ name: 'res_oily', type: 'smallint' }) resOily: number;
+  @Column({ name: 'res_mild', type: 'smallint' }) resMild: number;
   @Column({ name: 'res_clean', type: 'smallint' }) resClean: number;
   @Column({ name: 'res_stim', type: 'smallint' }) resStim: number;
   @Column({ name: 'res_spicy', type: 'smallint' }) resSpicy: number;
