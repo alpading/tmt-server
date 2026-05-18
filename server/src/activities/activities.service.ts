@@ -8,6 +8,16 @@ import { NotFoundException } from '../common/exceptions';
 import { ERROR_CODE } from '../common/constants/error-codes';
 import { CreateActivityRatingDto } from './dto/create-activity-rating.dto';
 
+const ACTIVITY_BASIC_FILTERS = [
+  { key: 'availableParking',       label: '주차' },
+  { key: 'isKidFriendly',          label: '아이와 함께' },
+  { key: 'isShopping',             label: '쇼핑' },
+  { key: 'isCafe',                 label: '카페, 디저트' },
+  { key: 'isFree',                 label: '무료' },
+  { key: 'isWheelchairAccessible', label: '휠체어 가능 여부' },
+  { key: 'allowsPets',             label: '애견 동반' },
+] as const;
+
 @Injectable()
 export class ActivitiesService {
   constructor(
@@ -17,6 +27,10 @@ export class ActivitiesService {
     private readonly ratingRepo: Repository<ActivityRating>,
     private readonly usersService: UsersService,
   ) {}
+
+  getBasicFilters() {
+    return ACTIVITY_BASIC_FILTERS;
+  }
 
   async createRating(userId: number, dto: CreateActivityRatingDto): Promise<ActivityRating> {
     const activity = await this.activityRepo.findOne({ where: { id: dto.activityId } });

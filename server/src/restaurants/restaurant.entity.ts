@@ -20,6 +20,9 @@ export class Restaurant {
   @Column({ length: 100 })
   name: string;
 
+  @Column({ name: 'has_parking', default: false })
+  hasParking: boolean;
+
   @Column({ name: 'allows_pets', default: false })
   allowsPets: boolean;
 
