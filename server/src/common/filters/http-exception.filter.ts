@@ -24,6 +24,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     } else if (exception instanceof HttpException) {
       status = exception.getStatus();
       if (status === HttpStatus.NOT_FOUND) code = ERROR_CODE.ROUTE_NOT_FOUND;
+      else if (status === HttpStatus.BAD_REQUEST) code = ERROR_CODE.INVALID_FORMAT;
       else if (status === HttpStatus.UNAUTHORIZED) code = ERROR_CODE.UNAUTHORIZED;
       else if (status === HttpStatus.FORBIDDEN) code = ERROR_CODE.FORBIDDEN;
       else code = ERROR_CODE.INTERNAL_SERVER_ERROR;

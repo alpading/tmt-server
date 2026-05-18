@@ -19,3 +19,9 @@ export enum RoleEnum {
   USER = 'USER',
   ADMIN = 'ADMIN',
 }
+
+export enum DomainEnum {
+  RESTAURANT = 'restaurant',
+  STAY = 'stay',
+  ACTIVITY = 'activity',
+}
