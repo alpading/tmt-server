@@ -20,6 +20,11 @@ export class RestaurantsController {
     return this.service.getCategories();
   }
 
+  @Get(':restaurantId')
+  findOne(@Param('restaurantId', ParseIntPipe) restaurantId: number) {
+    return this.service.findOne(restaurantId);
+  }
+
   @Get('search/district/:districtId')
   searchByDistrict(
     @Param('districtId', ParseIntPipe) districtId: number,

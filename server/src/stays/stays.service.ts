@@ -162,6 +162,12 @@ export class StaysService {
     );
   }
 
+  async findOne(id: number): Promise<Stay> {
+    const stay = await this.stayRepo.findOne({ where: { id } });
+    if (!stay) throw new NotFoundException(ERROR_CODE.RESOURCE_NOT_FOUND, '존재하지 않는 숙소입니다.');
+    return stay;
+  }
+
   async createRating(userId: number, dto: CreateStayRatingDto): Promise<StayRating> {
     const stay = await this.stayRepo.findOne({ where: { id: dto.stayId } });
     if (!stay) {

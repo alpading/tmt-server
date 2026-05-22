@@ -20,6 +20,11 @@ export class StaysController {
     return this.service.getCategories();
   }
 
+  @Get(':stayId')
+  findOne(@Param('stayId', ParseIntPipe) stayId: number) {
+    return this.service.findOne(stayId);
+  }
+
   @Get('search/district/:districtId')
   searchByDistrict(
     @Param('districtId', ParseIntPipe) districtId: number,

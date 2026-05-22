@@ -15,6 +15,11 @@ export class ActivitiesController {
     return this.service.getBasicFilters();
   }
 
+  @Get(':activityId')
+  findOne(@Param('activityId', ParseIntPipe) activityId: number) {
+    return this.service.findOne(activityId);
+  }
+
   @Get('search/district/:districtId')
   searchByDistrict(
     @Param('districtId', ParseIntPipe) districtId: number,

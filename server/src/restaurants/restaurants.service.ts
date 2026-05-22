@@ -184,6 +184,12 @@ export class RestaurantsService {
     );
   }
 
+  async findOne(id: number): Promise<Restaurant> {
+    const restaurant = await this.restaurantRepo.findOne({ where: { id } });
+    if (!restaurant) throw new NotFoundException(ERROR_CODE.RESOURCE_NOT_FOUND, '존재하지 않는 식당입니다.');
+    return restaurant;
+  }
+
   async createRating(userId: number, dto: CreateRestaurantRatingDto): Promise<RestaurantRating> {
     const restaurant = await this.restaurantRepo.findOne({ where: { id: dto.restaurantId } });
     if (!restaurant) {

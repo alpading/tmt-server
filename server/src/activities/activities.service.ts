@@ -154,6 +154,12 @@ export class ActivitiesService {
     );
   }
 
+  async findOne(id: number): Promise<Activity> {
+    const activity = await this.activityRepo.findOne({ where: { id } });
+    if (!activity) throw new NotFoundException(ERROR_CODE.RESOURCE_NOT_FOUND, '존재하지 않는 액티비티입니다.');
+    return activity;
+  }
+
   async createRating(userId: number, dto: CreateActivityRatingDto): Promise<ActivityRating> {
     const activity = await this.activityRepo.findOne({ where: { id: dto.activityId } });
     if (!activity) {
