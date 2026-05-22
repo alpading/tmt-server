@@ -1,4 +1,4 @@
-import { IsBoolean, IsInt, IsNotEmpty, IsOptional, IsPositive, IsString } from 'class-validator';
+import { IsBoolean, IsInt, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString } from 'class-validator';
 
 export class CreateActivityDto {
   @IsInt()
@@ -48,4 +48,18 @@ export class CreateActivityDto {
   @IsString()
   @IsNotEmpty()
   imageUrl: string;
+
+  @IsString()
+  @IsNotEmpty()
+  address: string;
+
+  @IsNumber()
+  latitude: number;
+
+  @IsNumber()
+  longitude: number;
+
+  @IsString()
+  @IsOptional()
+  naverPlaceId?: string;
 }

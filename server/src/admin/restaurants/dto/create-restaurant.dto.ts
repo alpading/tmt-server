@@ -1,4 +1,4 @@
-import { IsBoolean, IsInt, IsNotEmpty, IsOptional, IsPositive, IsString } from 'class-validator';
+import { IsBoolean, IsInt, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString } from 'class-validator';
 
 export class CreateRestaurantDto {
   @IsInt()
@@ -56,4 +56,18 @@ export class CreateRestaurantDto {
   @IsString()
   @IsNotEmpty()
   imageUrl: string;
+
+  @IsString()
+  @IsNotEmpty()
+  address: string;
+
+  @IsNumber()
+  latitude: number;
+
+  @IsNumber()
+  longitude: number;
+
+  @IsString()
+  @IsOptional()
+  naverPlaceId?: string;
 }

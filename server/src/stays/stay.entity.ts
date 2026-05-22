@@ -47,6 +47,18 @@ export class Stay {
   @Column({ name: 'image_url', type: 'text' })
   imageUrl: string;
 
+  @Column({ length: 200 })
+  address: string;
+
+  @Column({ type: 'decimal', precision: 10, scale: 7 })
+  latitude: number;
+
+  @Column({ type: 'decimal', precision: 10, scale: 7 })
+  longitude: number;
+
+  @Column({ name: 'naver_place_id', length: 30, nullable: true })
+  naverPlaceId: string | null;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 
