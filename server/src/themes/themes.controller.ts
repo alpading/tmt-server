@@ -8,7 +8,7 @@ import { ThemesService } from './themes.service';
 export class ThemesController {
   constructor(private readonly service: ThemesService) {}
 
-  @Get()
+  @Get('list')
   getThemes(@GetUser() user: RequestUser) {
     return this.service.getThemes(user.id);
   }
