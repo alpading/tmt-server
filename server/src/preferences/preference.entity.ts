@@ -1,8 +1,8 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { PreferenceCategory } from './preference-category.entity';
 
-@Entity('attribute_mappings')
-export class AttributeMapping {
+@Entity('preferences')
+export class Preference {
   @PrimaryGeneratedColumn()
   id: number;
 

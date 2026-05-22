@@ -4,7 +4,7 @@ import { In, Repository } from 'typeorm';
 import { Stay } from './stay.entity';
 import { StayRating } from './stay-rating.entity';
 import { StayCategory } from './stay-category.entity';
-import { AttributeMapping } from '../preferences/attribute-mapping.entity';
+import { Preference } from '../preferences/preference.entity';
 import { UsersService } from '../users/users.service';
 import { NotFoundException } from '../common/exceptions';
 import { ERROR_CODE } from '../common/constants/error-codes';
@@ -44,8 +44,8 @@ export class StaysService {
     private readonly ratingRepo: Repository<StayRating>,
     @InjectRepository(StayCategory)
     private readonly categoryRepo: Repository<StayCategory>,
-    @InjectRepository(AttributeMapping)
-    private readonly attrRepo: Repository<AttributeMapping>,
+    @InjectRepository(Preference)
+    private readonly attrRepo: Repository<Preference>,
     private readonly usersService: UsersService,
   ) {}
 

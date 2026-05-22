@@ -4,7 +4,7 @@ import { In, Repository } from 'typeorm';
 import { Restaurant } from './restaurant.entity';
 import { RestaurantRating } from './restaurant-rating.entity';
 import { RestaurantCategory } from './restaurant-category.entity';
-import { AttributeMapping } from '../preferences/attribute-mapping.entity';
+import { Preference } from '../preferences/preference.entity';
 import { UsersService } from '../users/users.service';
 import { NotFoundException } from '../common/exceptions';
 import { ERROR_CODE } from '../common/constants/error-codes';
@@ -46,8 +46,8 @@ export class RestaurantsService {
     private readonly ratingRepo: Repository<RestaurantRating>,
     @InjectRepository(RestaurantCategory)
     private readonly categoryRepo: Repository<RestaurantCategory>,
-    @InjectRepository(AttributeMapping)
-    private readonly attrRepo: Repository<AttributeMapping>,
+    @InjectRepository(Preference)
+    private readonly attrRepo: Repository<Preference>,
     private readonly usersService: UsersService,
   ) {}
 

@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { Activity } from './activity.entity';
 import { ActivityRating } from './activity-rating.entity';
-import { AttributeMapping } from '../preferences/attribute-mapping.entity';
+import { Preference } from '../preferences/preference.entity';
 import { UsersService } from '../users/users.service';
 import { NotFoundException } from '../common/exceptions';
 import { ERROR_CODE } from '../common/constants/error-codes';
@@ -39,8 +39,8 @@ export class ActivitiesService {
     private readonly activityRepo: Repository<Activity>,
     @InjectRepository(ActivityRating)
     private readonly ratingRepo: Repository<ActivityRating>,
-    @InjectRepository(AttributeMapping)
-    private readonly attrRepo: Repository<AttributeMapping>,
+    @InjectRepository(Preference)
+    private readonly attrRepo: Repository<Preference>,
     private readonly usersService: UsersService,
   ) {}
 

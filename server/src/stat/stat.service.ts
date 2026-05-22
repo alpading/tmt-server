@@ -69,7 +69,7 @@ export class StatService {
       `SELECT pc.id AS "catId", pc.name AS "catName", pc.target_rating AS "targetRating",
               am.name AS "attrName", am.snapshot_col AS "snapshotCol"
        FROM preference_categories pc
-       JOIN attribute_mappings am ON am.preference_category_id = pc.id
+       JOIN preferences am ON am.preference_category_id = pc.id
        WHERE pc.domain = $1 AND am.snapshot_col IS NOT NULL
        ORDER BY pc.id, am.id`,
       [domain],

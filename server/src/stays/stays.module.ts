@@ -3,13 +3,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Stay } from './stay.entity';
 import { StayRating } from './stay-rating.entity';
 import { StayCategory } from './stay-category.entity';
-import { AttributeMapping } from '../preferences/attribute-mapping.entity';
+import { Preference } from '../preferences/preference.entity';
 import { StaysController } from './stays.controller';
 import { StaysService } from './stays.service';
 import { UsersModule } from '../users/users.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Stay, StayRating, StayCategory, AttributeMapping]), UsersModule],
+  imports: [TypeOrmModule.forFeature([Stay, StayRating, StayCategory, Preference]), UsersModule],
   controllers: [StaysController],
   providers: [StaysService],
 })
