@@ -17,6 +17,7 @@
 | GET | `/restaurants/filters/basic` | 기본 필터 목록 조회 | 필요 |
 | GET | `/restaurants/filters/categories` | 카테고리 목록 조회 | 필요 |
 | GET | `/preferences/filters/restaurant` | 성향 기반 필터 목록 조회 | 필요 |
+| GET | `/restaurants/:restaurantId` | 식당 상세 조회 | 필요 |
 | GET | `/restaurants/search/district/:districtId` | 지역별 식당 검색 | 필요 |
 | POST | `/restaurants/rating` | 리뷰 작성 | 필요 |
 
@@ -107,6 +108,54 @@
   }
 ]
 ```
+
+---
+
+## GET /restaurants/:restaurantId
+
+식당 상세 정보 조회.
+
+### Path Parameters
+
+| 파라미터 | 타입 | 필수 | 설명 |
+|---|---|---|---|
+| restaurantId | integer | Y | 식당 ID |
+
+### Response
+
+**성공 `200`**
+
+| 필드 | 타입 | 설명 |
+|---|---|---|
+| id | integer | 식당 ID |
+| name | string | 식당 이름 |
+| imageUrl | string | 이미지 URL |
+| address | string | 주소 |
+| latitude | number \| null | 위도 |
+| longitude | number \| null | 경도 |
+| naverPlaceId | string \| null | 네이버 장소 ID (`https://map.naver.com/v5/entry/place/{naverPlaceId}`) |
+| categoryId | integer | 카테고리 ID |
+| districtId | integer | 지역 ID |
+
+```json
+{
+  "id": 12,
+  "name": "맛있는 식당",
+  "imageUrl": "https://...",
+  "address": "제주특별자치도 제주시 ...",
+  "latitude": 33.4996,
+  "longitude": 126.5312,
+  "naverPlaceId": "1234567890",
+  "categoryId": 1,
+  "districtId": 5
+}
+```
+
+**실패**
+
+| 상황 | Status | code |
+|---|---|---|
+| 존재하지 않는 식당 | `404` | `RESOURCE_NOT_FOUND` |
 
 ---
 

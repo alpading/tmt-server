@@ -16,6 +16,7 @@
 |---|---|---|---|
 | GET | `/activities/filters/basic` | 기본 필터 목록 조회 | 필요 |
 | GET | `/preferences/filters/activity` | 성향 기반 필터 목록 조회 | 필요 |
+| GET | `/activities/:activityId` | 액티비티 상세 조회 | 필요 |
 | GET | `/activities/search/district/:districtId` | 지역별 액티비티 검색 | 필요 |
 | POST | `/activities/rating` | 리뷰 작성 | 필요 |
 
@@ -76,6 +77,52 @@
   }
 ]
 ```
+
+---
+
+## GET /activities/:activityId
+
+액티비티 상세 정보 조회.
+
+### Path Parameters
+
+| 파라미터 | 타입 | 필수 | 설명 |
+|---|---|---|---|
+| activityId | integer | Y | 액티비티 ID |
+
+### Response
+
+**성공 `200`**
+
+| 필드 | 타입 | 설명 |
+|---|---|---|
+| id | integer | 액티비티 ID |
+| name | string | 액티비티 이름 |
+| imageUrl | string | 이미지 URL |
+| address | string | 주소 |
+| latitude | number \| null | 위도 |
+| longitude | number \| null | 경도 |
+| naverPlaceId | string \| null | 네이버 장소 ID (`https://map.naver.com/v5/entry/place/{naverPlaceId}`) |
+| districtId | integer | 지역 ID |
+
+```json
+{
+  "id": 22,
+  "name": "국립 박물관 관람",
+  "imageUrl": "https://...",
+  "address": "제주특별자치도 제주시 ...",
+  "latitude": 33.4502,
+  "longitude": 126.5700,
+  "naverPlaceId": "1122334455",
+  "districtId": 5
+}
+```
+
+**실패**
+
+| 상황 | Status | code |
+|---|---|---|
+| 존재하지 않는 액티비티 | `404` | `RESOURCE_NOT_FOUND` |
 
 ---
 
