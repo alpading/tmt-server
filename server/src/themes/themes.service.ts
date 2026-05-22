@@ -58,7 +58,7 @@ function buildSchedule(
   const orderedActivities = applyPeakEnd(activities, days);
   const schedule = Array.from({ length: days }, (_, i) => ({
     day: i + 1,
-    restaurants: restaurants.slice(i * 2, i * 2 + 2),
+    restaurants: restaurants.slice(i * 3, i * 3 + 3),
     activity: orderedActivities[i] ?? null,
   }));
   return { days, stay, schedule };
@@ -209,7 +209,7 @@ export class ThemesService {
 
   // Theme 1: 스릴만점 액티비티 여행
   private async theme1(districtId: number, days: number) {
-    const rLimit = days * 2;
+    const rLimit = days * 3;
     const aLimit = days;
     const [restaurants, stays, activities] = await Promise.all([
       this.queryItems({ domain: 'restaurants', districtId, limit: rLimit }),
@@ -233,7 +233,7 @@ export class ThemesService {
   // Theme 2: 인스타 감성가득 핫플레이스
   private async theme2(districtId: number, days: number) {
     const [restaurants, stays, activities] = await Promise.all([
-      this.queryItems({ domain: 'restaurants', districtId, limit: days * 2, caseWhenCond: 'rr.res_interior_snap >= 3' }),
+      this.queryItems({ domain: 'restaurants', districtId, limit: days * 3, caseWhenCond: 'rr.res_interior_snap >= 3' }),
       days > 1
         ? this.queryItems({ domain: 'stays', districtId, limit: 1, caseWhenCond: 'rr.stay_view_snap >= 2 AND rr.stay_interior_snap >= 2' })
         : Promise.resolve([]),
@@ -265,7 +265,7 @@ export class ThemesService {
     }
 
     const [restaurants, stays, activities] = await Promise.all([
-      this.queryItems({ domain: 'restaurants', districtId, limit: days * 2, caseWhenCond: restaurantCaseWhen }),
+      this.queryItems({ domain: 'restaurants', districtId, limit: days * 3, caseWhenCond: restaurantCaseWhen }),
       days > 1 ? this.queryItems({ domain: 'stays', districtId, limit: 1 }) : Promise.resolve([]),
       this.queryWithFallback(
         { domain: 'activities', districtId, limit: days, entityFilters: ['e.is_cafe = true'] },
@@ -278,7 +278,7 @@ export class ThemesService {
   // Theme 4: 지친 당신을 위한 감성 힐링 여행
   private async theme4(districtId: number, days: number) {
     const [restaurants, stays, activities] = await Promise.all([
-      this.queryItems({ domain: 'restaurants', districtId, limit: days * 2, caseWhenCond: 'rr.res_interior_snap >= 2 AND rr.res_service_snap >= 2' }),
+      this.queryItems({ domain: 'restaurants', districtId, limit: days * 3, caseWhenCond: 'rr.res_interior_snap >= 2 AND rr.res_service_snap >= 2' }),
       days > 1
         ? this.queryItems({ domain: 'stays', districtId, limit: 1, caseWhenCond: 'rr.stay_view_snap >= 2 AND rr.stay_interior_snap >= 2 AND rr.stay_noise_snap >= 2' })
         : Promise.resolve([]),
@@ -290,7 +290,7 @@ export class ThemesService {
   // Theme 5: 지갑은 가볍지만 경험은 무거운 여행
   private async theme5(districtId: number, days: number) {
     const [restaurants, stays, activities] = await Promise.all([
-      this.queryPriceRatio('restaurants', districtId, days * 2),
+      this.queryPriceRatio('restaurants', districtId, days * 3),
       days > 1 ? this.queryPriceRatio('stays', districtId, 1) : Promise.resolve([]),
       this.queryItems({ domain: 'activities', districtId, limit: days, entityFilters: ['e.is_shopping = false'] }),
     ]);
@@ -304,7 +304,7 @@ export class ThemesService {
 
     const [restaurants, stays, activities] = await Promise.all([
       this.queryItems({
-        domain: 'restaurants', districtId, limit: days * 2, extraJoin,
+        domain: 'restaurants', districtId, limit: days * 3, extraJoin,
         caseWhenCond: `${ageCond} AND rr.res_mild_snap >= 2 AND rr.res_service_snap >= 2`,
       }),
       days > 1
@@ -325,7 +325,7 @@ export class ThemesService {
   // Theme 7: 여행에서만큼은 FLEX
   private async theme7(districtId: number, days: number) {
     const [restaurants, stays, activities] = await Promise.all([
-      this.queryFlexRestaurants(districtId, days * 2),
+      this.queryFlexRestaurants(districtId, days * 3),
       days > 1
         ? this.queryItems({ domain: 'stays', districtId, limit: 1, entityFilters: ['e.stay_category_id = 1'] })
         : Promise.resolve([]),
@@ -339,7 +339,7 @@ export class ThemesService {
     const caseWhenCond = `rr.mbti_snap::text = $2`;
     const extraParams: [string] = [mbti];
     const [restaurants, stays, activities] = await Promise.all([
-      this.queryItems({ domain: 'restaurants', districtId, limit: days * 2, caseWhenCond, extraParams }),
+      this.queryItems({ domain: 'restaurants', districtId, limit: days * 3, caseWhenCond, extraParams }),
       days > 1
         ? this.queryItems({ domain: 'stays', districtId, limit: 1, caseWhenCond, extraParams })
         : Promise.resolve([]),
@@ -352,7 +352,7 @@ export class ThemesService {
   private async theme9(districtId: number, days: number) {
     const caseWhenCond = `rr.hormone_snap::text = 'EGEN'`;
     const [restaurants, stays, activities] = await Promise.all([
-      this.queryItems({ domain: 'restaurants', districtId, limit: days * 2, caseWhenCond }),
+      this.queryItems({ domain: 'restaurants', districtId, limit: days * 3, caseWhenCond }),
       days > 1 ? this.queryItems({ domain: 'stays', districtId, limit: 1, caseWhenCond }) : Promise.resolve([]),
       this.queryItems({ domain: 'activities', districtId, limit: days, caseWhenCond }),
     ]);
@@ -363,7 +363,7 @@ export class ThemesService {
   private async theme10(districtId: number, days: number) {
     const caseWhenCond = `rr.hormone_snap::text = 'TETO'`;
     const [restaurants, stays, activities] = await Promise.all([
-      this.queryItems({ domain: 'restaurants', districtId, limit: days * 2, caseWhenCond }),
+      this.queryItems({ domain: 'restaurants', districtId, limit: days * 3, caseWhenCond }),
       days > 1 ? this.queryItems({ domain: 'stays', districtId, limit: 1, caseWhenCond }) : Promise.resolve([]),
       this.queryItems({ domain: 'activities', districtId, limit: days, caseWhenCond }),
     ]);
@@ -373,7 +373,7 @@ export class ThemesService {
   // Theme 11: 아이와 함께해요
   private async theme11(districtId: number, days: number) {
     const [restaurants, stays, activities] = await Promise.all([
-      this.queryItems({ domain: 'restaurants', districtId, limit: days * 2, entityFilters: ['e.has_baby_chair = true'] }),
+      this.queryItems({ domain: 'restaurants', districtId, limit: days * 3, entityFilters: ['e.has_baby_chair = true'] }),
       days > 1 ? this.queryItems({ domain: 'stays', districtId, limit: 1, entityFilters: ['e.stay_category_id != 4'] }) : Promise.resolve([]),
       this.queryItems({ domain: 'activities', districtId, limit: days, entityFilters: ['e.is_kid_friendly = true'] }),
     ]);
@@ -383,7 +383,7 @@ export class ThemesService {
   // Theme 12: 멍멍이와 함께해요
   private async theme12(districtId: number, days: number) {
     const [restaurants, stays, activities] = await Promise.all([
-      this.queryItems({ domain: 'restaurants', districtId, limit: days * 2, entityFilters: ['e.allows_pets = true'] }),
+      this.queryItems({ domain: 'restaurants', districtId, limit: days * 3, entityFilters: ['e.allows_pets = true'] }),
       days > 1 ? this.queryItems({ domain: 'stays', districtId, limit: 1, entityFilters: ['e.allows_pets = true'] }) : Promise.resolve([]),
       this.queryItems({ domain: 'activities', districtId, limit: days, entityFilters: ['e.allows_pets = true'] }),
     ]);
@@ -395,7 +395,7 @@ export class ThemesService {
     const extraJoin = 'LEFT JOIN users u ON u.id = rr.user_id';
     const ageCond = "u.birth_date > CURRENT_DATE - INTERVAL '40 years'";
     const [restaurants, stays, activities] = await Promise.all([
-      this.queryItems({ domain: 'restaurants', districtId, limit: days * 2, extraJoin, caseWhenCond: ageCond }),
+      this.queryItems({ domain: 'restaurants', districtId, limit: days * 3, extraJoin, caseWhenCond: ageCond }),
       days > 1 ? this.queryItems({ domain: 'stays', districtId, limit: 1, extraJoin, caseWhenCond: ageCond }) : Promise.resolve([]),
       this.queryItems({ domain: 'activities', districtId, limit: days, extraJoin, caseWhenCond: ageCond }),
     ]);
