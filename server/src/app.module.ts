@@ -8,6 +8,7 @@ import { StaysModule } from './stays/stays.module';
 import { ActivitiesModule } from './activities/activities.module';
 import { PreferencesModule } from './preferences/preferences.module';
 import { ThemesModule } from './themes/themes.module';
+import { StatModule } from './stat/stat.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { ThemesModule } from './themes/themes.module';
     ActivitiesModule,
     PreferencesModule,
     ThemesModule,
+    StatModule,
   ],
 })
 export class AppModule {}
