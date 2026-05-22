@@ -38,8 +38,8 @@ export class Activity {
   @Column({ name: 'is_shopping', default: false })
   isShopping: boolean;
 
-  @Column({ name: 'offers_workshop', default: false })
-  offersWorkshop: boolean;
+  @Column({ name: 'is_active', default: false })
+  isActive: boolean;
 
   @Column({ name: 'is_exhibition', default: false })
   isExhibition: boolean;

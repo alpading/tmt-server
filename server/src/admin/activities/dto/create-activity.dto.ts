@@ -39,7 +39,7 @@ export class CreateActivityDto {
 
   @IsBoolean()
   @IsOptional()
-  offersWorkshop?: boolean;
+  isActive?: boolean;
 
   @IsBoolean()
   @IsOptional()

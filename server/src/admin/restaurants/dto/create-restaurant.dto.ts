@@ -15,6 +15,10 @@ export class CreateRestaurantDto {
 
   @IsBoolean()
   @IsOptional()
+  hasParking?: boolean;
+
+  @IsBoolean()
+  @IsOptional()
   allowsPets?: boolean;
 
   @IsBoolean()
