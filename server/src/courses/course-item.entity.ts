@@ -19,6 +19,9 @@ export class CourseItem {
   @Column({ name: 'item_order', type: 'smallint', default: 0 })
   itemOrder: number;
 
+  @Column({ name: 'day', type: 'smallint', default: 0 })
+  day: number;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 
