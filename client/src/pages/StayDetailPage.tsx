@@ -1,0 +1,266 @@
+import React from 'react';
+import { motion } from 'motion/react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { 
+  Search, 
+  User, 
+  ArrowLeft, 
+  Heart, 
+  Bookmark, 
+  Star, 
+  MessageSquare,
+  ParkingCircle,
+  Soup,
+  Coffee,
+  FlameKindling,
+  Accessibility,
+  Dog,
+  Tv,
+  Bath,
+  Home,
+  Compass,
+  Luggage,
+  Users,
+  Map as MapIcon,
+  Loader2
+} from 'lucide-react';
+import { travelService } from '../services/travelService';
+import { reviewService } from '../services/reviewService';
+import { apiClient } from '../services/apiClient';
+import { ReviewAnalytics } from '../types';
+import MapSection from '../components/MapSection';
+import AttributeSection from '../components/AttributeSection';
+import ReviewAnalyticsSection from '../components/ReviewAnalyticsSection';
+
+interface StayData {
+  id: number; name: string; imageUrl: string; categoryName: string | null;
+  hasParking: boolean; allowsCooking: boolean; hasBreakfast: boolean; hasBbq: boolean;
+  isWheelchairAccessible: boolean; allowsPets: boolean; hasTv: boolean; hasBathtub: boolean;
+  latitude: string; longitude: string; naverPlaceId: string | null;
+}
+
+export default function StayDetailPage() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const navState = (location.state || {}) as { itemId?: number; name?: string; image?: string };
+
+  const ITEM_ID    = navState.itemId ?? null;
+  const PLACE_NAME = navState.name   || '숙소';
+  const IMAGE      = navState.image  || '';
+
+  // State
+  const [isSavedInCourse, setIsSavedInCourse] = React.useState(false);
+  const [isBookmarked, setIsBookmarked]         = React.useState(false);
+  const [reviewAnalytics, setReviewAnalytics]   = React.useState<ReviewAnalytics | null>(null);
+  const [loading, setLoading]                   = React.useState(true);
+  const [placeCoords, setPlaceCoords]           = React.useState<{ lat: number; lng: number; naverPlaceId: string | null } | null>(null);
+  const [placeData, setPlaceData]               = React.useState<StayData | null>(null);
+  const [avgRating, setAvgRating]               = React.useState<number | null>(null);
+
+  React.useEffect(() => {
+    async function loadData() {
+      try {
+        setLoading(true);
+        const promises: Promise<any>[] = [
+          travelService.getSavedCourses(),
+          travelService.getSavedPlaces(),
+          reviewService.getReviewAnalytics(ITEM_ID, 'stay'),
+        ];
+        if (ITEM_ID) {
+          promises.push(apiClient.get<StayData>(`/stays/${ITEM_ID}`));
+          promises.push(apiClient.get<{ avgRating: number | null; count: number }>(`/stat/stay/${ITEM_ID}/overall`));
+        }
+        const [courses, savedPlaces, analytics, placeRes, statRes] = await Promise.all(promises);
+        setIsSavedInCourse(courses.length > 0);
+        setIsBookmarked(
+          ITEM_ID
+            ? savedPlaces.some(p => p.domain === 'stay' && p.itemId === ITEM_ID)
+            : savedPlaces.some(p => p.name === PLACE_NAME),
+        );
+        setReviewAnalytics(analytics);
+        if (placeRes?.data) {
+          setPlaceData(placeRes.data);
+          setPlaceCoords({
+            lat: parseFloat(placeRes.data.latitude),
+            lng: parseFloat(placeRes.data.longitude),
+            naverPlaceId: placeRes.data.naverPlaceId ?? null,
+          });
+        }
+        if (statRes?.data?.avgRating != null) setAvgRating(statRes.data.avgRating);
+      } catch (err) {
+        console.error('[StayDetailPage] failed to pre-fetch details', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, []);
+
+  // DB 데이터로 어트리뷰트 동적 생성
+  const stayAttributes = placeData ? [
+    { key: 'parking',      label: '주차',           value: placeData.hasParking            ? '가능' : '불가'   },
+    { key: 'cooking',      label: '취사',           value: placeData.allowsCooking         ? '가능' : '불가'   },
+    { key: 'breakfast',    label: '조식',           value: placeData.hasBreakfast          ? '제공' : '미제공' },
+    { key: 'bbq',          label: '바베큐',         value: placeData.hasBbq                ? '가능' : '불가'   },
+    { key: 'wheelchair',   label: '휠체어 접근',     value: placeData.isWheelchairAccessible ? '가능' : '불가'  },
+    { key: 'pets',         label: '반려동물 동반',   value: placeData.allowsPets            ? '가능' : '불가'   },
+    { key: 'tv',           label: 'TV',             value: placeData.hasTv                 ? '구비' : '미구비' },
+    { key: 'bathtub',      label: '욕조',           value: placeData.hasBathtub            ? '구비' : '미구비' },
+  ] : [];
+
+  const toggleBookmark = async () => {
+    if (!ITEM_ID) return;
+    try {
+      if (isBookmarked) {
+        await travelService.unsavePlace('stay', ITEM_ID);
+        setIsBookmarked(false);
+      } else {
+        await travelService.savePlace('stay', ITEM_ID);
+        setIsBookmarked(true);
+      }
+    } catch (err) {
+      console.error('[StayDetailPage] toggle bookmark error', err);
+    }
+  };
+
+  return (
+    <div className="bg-[#f9f9f9] text-[#1a1c1c] font-sans min-h-screen antialiased">
+      {/* TopNavBar */}
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-neutral-100 flex justify-center items-center h-16">
+        <div className="w-full max-w-[1024px] px-8 flex justify-between items-center h-full">
+          <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/main')}>
+            <img alt="떠먹트립 로고" 
+              className="h-8 w-8 object-contain" 
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuDmBmFtxOuMxcNCgk0n24EUv046PekwC7l9lSJoUVfD7NUljHqpH4rheCbbUx3RzHcXqnSv3GBSuRcD42txCTiK-zAt19iloNphaUKXS2MDFi-XfcmDeDgfP-PXF5nYWy5gC6jtkTCP6U6_EjsbASwNbHKD7d17rBQLdruR8XvZ27qSDB5nTJfZ5gLmstCmcJWnQaCfGdAKiUNJGGTZ8Z9ABQdjP5hSlxT9QHor2m83JAf0suX8hjXMnm6dJZJaH4Nd_UC2qL5r9Q36" referrerPolicy="no-referrer" />
+            <span className="text-xl font-black tracking-tighter text-neutral-900">떠먹트립</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <button className="p-1.5 rounded-full hover:bg-neutral-100 transition-colors">
+              <Search className="w-5 h-5 text-neutral-900" />
+            </button>
+            <button 
+              onClick={() => navigate('/mypage')}
+              className="p-1.5 rounded-full hover:bg-neutral-100 transition-colors"
+            >
+              <User className="w-5 h-5 fill-current text-neutral-900" />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-[1024px] mx-auto px-8 pt-6 pb-12">
+        {/* Hero Section */}
+        <section className="relative h-[340px] w-full rounded-2xl overflow-hidden mb-6 shadow-[12px_12px_0px_0px_rgba(0,0,0,0.05)] border border-neutral-200">
+          <div className="absolute top-3 left-3 z-10">
+            <button 
+              onClick={() => navigate(-1)}
+              className="flex items-center gap-2 bg-white px-3.5 py-1.5 rounded-full border border-neutral-200 font-bold text-xs shadow-sm active:scale-95 transition-all text-black cursor-pointer"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>뒤로 가기</span>
+            </button>
+          </div>
+          <img alt={PLACE_NAME}
+            className="w-full h-full object-cover"
+            src={placeData?.imageUrl || IMAGE} referrerPolicy="no-referrer" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+          <div className="absolute bottom-6 left-6 text-white">
+            {placeData?.categoryName && (
+              <span className="inline-block px-3 py-0.5 rounded-full bg-white text-black text-[10px] font-bold mb-2 uppercase tracking-wider">{placeData.categoryName}</span>
+            )}
+            <h1 className="text-3xl md:text-4xl font-black">{PLACE_NAME}</h1>
+          </div>
+          <div className="absolute top-3 right-3 flex gap-2 z-10">
+            {/* Heart is just indicator (non-button div, styled look) */}
+            <div 
+              className="w-10 h-10 rounded-full bg-white/95 backdrop-blur-sm flex items-center justify-center border border-neutral-200 shadow-sm transition-all"
+              title={isSavedInCourse ? "내가 저장한 코스에 포함된 장소입니다 ❤️" : "코스에 저장되지 않은 장소입니다"}
+            >
+              <Heart className={`w-5 h-5 transition-transform ${isSavedInCourse ? 'fill-red-500 text-red-500 scale-105' : 'text-neutral-300'}`} />
+            </div>
+            {/* Bookmark */}
+            <button
+              onClick={toggleBookmark}
+              disabled={!ITEM_ID}
+              className={`w-10 h-10 rounded-full bg-white/95 backdrop-blur-sm flex items-center justify-center text-black border border-neutral-200 shadow-sm transition-all active:scale-95 group ${ITEM_ID ? 'hover:bg-neutral-50 cursor-pointer' : 'opacity-40 cursor-default'}`}
+              title={!ITEM_ID ? '코스 추천에서 이동 시 저장 가능합니다' : isBookmarked ? '장소 저장 해제하기' : '장소 저장하기'}
+            >
+              <Bookmark className={`w-5 h-5 transition-all ${isBookmarked ? 'fill-amber-500 text-amber-500 scale-105' : 'text-neutral-700 group-hover:scale-110'}`} />
+            </button>
+          </div>
+        </section>
+
+        {/* Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          {/* Left Column: Basic Info & Map */}
+          <div className="lg:col-span-5 space-y-6">
+            <div className="bg-white p-5 rounded-2xl border border-neutral-100 shadow-[12px_12px_0px_0px_rgba(0,0,0,0.05)]">
+              <div className="flex justify-between items-start mb-4">
+                <h2 className="text-xl font-black text-black">{placeData?.name || PLACE_NAME}</h2>
+                <div className="bg-black text-white px-2.5 py-1 rounded-lg flex items-center gap-1.5 shrink-0 text-sm">
+                  <Star className="text-yellow-400 w-3.5 h-3.5 fill-current" />
+                  <span className="font-bold">{avgRating != null ? avgRating.toFixed(1) : '-'}</span>
+                </div>
+              </div>
+              <button
+                onClick={() => navigate('/write-review', { state: { type: 'stay', itemId: ITEM_ID, name: placeData?.name || PLACE_NAME, category: '숙소', image: placeData?.imageUrl || IMAGE } })}
+                className="w-full bg-black text-white py-2.5 px-4 rounded-xl font-bold hover:bg-neutral-800 transition-colors flex items-center justify-center gap-1.5 mt-2 shadow-md shadow-black/5 cursor-pointer text-sm animate-none"
+              >
+                <MessageSquare className="w-4 h-4 text-white" />
+                리뷰 남기기
+              </button>
+            </div>
+
+            {/* Map Section Integration */}
+            <MapSection
+              placeName={PLACE_NAME}
+              latitude={placeCoords?.lat}
+              longitude={placeCoords?.lng}
+              naverPlaceId={placeCoords?.naverPlaceId}
+            />
+          </div>
+
+          {/* Right Column: Detailed Information */}
+          <div className="lg:col-span-7">
+            <div className="bg-white p-5 rounded-2xl border border-neutral-100 shadow-[12px_12px_0px_0px_rgba(0,0,0,0.05)]">
+              <h3 className="text-xl font-black mb-4 text-black">상세 정보</h3>
+              <AttributeSection attributes={stayAttributes} />
+            </div>
+          </div>
+        </div>
+
+        {/* Reviews Section */}
+        <div className="bg-white p-8 rounded-2xl border border-neutral-100 shadow-[12px_12px_0px_0px_rgba(0,0,0,0.05)] mt-12">
+          <h3 className="text-2xl font-black mb-8 text-black">다른 사람들의 리뷰</h3>
+          {loading ? (
+            <div className="flex justify-center items-center py-10 w-full">
+              <Loader2 className="w-6 h-6 animate-spin text-black" />
+            </div>
+          ) : (
+            <ReviewAnalyticsSection analytics={reviewAnalytics} />
+          )}
+        </div>
+      </main>
+
+      {/* Bottom Nav Bar (Mobile) */}
+      <nav className="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-4 bg-white border-t border-zinc-100 shadow-2xl">
+        <button className="flex flex-col items-center justify-center text-zinc-400 px-4 py-1">
+          <Home className="w-6 h-6" />
+          <span className="text-[10px] font-bold uppercase tracking-widest mt-1">Home</span>
+        </button>
+        <button className="flex flex-col items-center justify-center text-black bg-zinc-50 rounded-2xl px-6 py-2">
+          <Compass className="w-6 h-6 fill-current" />
+          <span className="text-[10px] font-bold uppercase tracking-widest mt-1">Discover</span>
+        </button>
+        <button className="flex flex-col items-center justify-center text-zinc-400 px-4 py-1">
+          <Bookmark className="w-6 h-6" />
+          <span className="text-[10px] font-bold uppercase tracking-widest mt-1">Saved</span>
+        </button>
+        <button className="flex flex-col items-center justify-center text-zinc-400 px-4 py-1">
+          <Luggage className="w-6 h-6" />
+          <span className="text-[10px] font-bold uppercase tracking-widest mt-1">Trips</span>
+        </button>
+      </nav>
+    </div>
+  );
+}

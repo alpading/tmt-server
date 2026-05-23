@@ -1,0 +1,8 @@
+{
+  "name": "떠먹트립 (Tteomeok Trip) version2",
+  "description": "api 명세서 붙이기 직전의 상태 ",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

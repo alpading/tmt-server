@@ -24,3 +24,6 @@ coverage/
 # logs
 *.log
 npm-debug.log*
+
+image/
+*.pem
