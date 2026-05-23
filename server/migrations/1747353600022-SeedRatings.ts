@@ -1,8 +1,10 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class SeedRatings1747353600022 implements MigrationInterface {
-  public async up(queryRunner: QueryRunner): Promise<void> {
-    const users: any[] = await queryRunner.query(`
+  public async up(_queryRunner: QueryRunner): Promise<void> {
+    // 스킵: 1747353600040-ReSeedAllRatings 에서 전체 재생성
+    return;
+    const users: any[] = await (_queryRunner as QueryRunner).query(`
       SELECT u.id, u.mbti, u.hormone,
         up.res_oily, up.res_mild, up.res_clean, up.res_stim, up.res_spicy,
         up.res_noise, up.res_interior, up.res_service,
