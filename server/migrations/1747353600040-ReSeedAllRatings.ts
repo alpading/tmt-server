@@ -261,7 +261,7 @@ export class ReSeedAllRatings1747353600040 implements MigrationInterface {
       const uid       = Number(u.id);
       const mbti      = u.mbti  as string;
       const hormone   = u.hormone as string;
-      const birthYear = parseInt((u.birth_date as string).substring(0, 4));
+      const birthYear = new Date(u.birth_date).getFullYear();
       const isYoung   = birthYear >= 1995; // ~31세 이하
       const isOld     = birthYear <= 1986; // ~40세 이상
       const isTeto    = hormone === 'TETO';
