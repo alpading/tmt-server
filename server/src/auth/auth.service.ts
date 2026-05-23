@@ -97,6 +97,11 @@ export class AuthService {
     return { message: 'ok' };
   }
 
+  async checkLoginIdExists(loginId: string): Promise<boolean> {
+    const user = await this.usersService.findByLoginId(loginId);
+    return !!user;
+  }
+
   private async issueTokens(user: User) {
     const payload = { sub: user.id, role: user.role };
 

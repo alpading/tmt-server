@@ -22,7 +22,7 @@ export class SeedGyeongjuData1747353600017 implements MigrationInterface {
          false, false, false, true, true, false, false, false, false, false,
          '', '경상북도 경주시 교촌안길 27', 35.8367000, 129.2119000),
 
-        (189, 1, '황남국밥',
+        (189, 1, '황남양옥',
          false, false, false, true, true, false, false, false, false, false,
          '', '경상북도 경주시 포석로 1080', 35.8341000, 129.2082000),
 

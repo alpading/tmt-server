@@ -109,7 +109,7 @@ export class StaysService {
       WHERE ${whereClause}
       GROUP BY s.id, s.name, s.image_url
       ORDER BY score DESC
-      LIMIT 5
+      LIMIT 3
     `;
 
     const results = await this.stayRepo.manager.query(sql, params);
@@ -162,10 +162,11 @@ export class StaysService {
     );
   }
 
-  async findOne(id: number): Promise<Stay> {
+  async findOne(id: number) {
     const stay = await this.stayRepo.findOne({ where: { id } });
     if (!stay) throw new NotFoundException(ERROR_CODE.RESOURCE_NOT_FOUND, '존재하지 않는 숙소입니다.');
-    return stay;
+    const category = await this.categoryRepo.findOne({ where: { id: stay.stayCategoryId }, select: { name: true } });
+    return { ...stay, categoryName: category?.name ?? null };
   }
 
   async createRating(userId: number, dto: CreateStayRatingDto): Promise<StayRating> {

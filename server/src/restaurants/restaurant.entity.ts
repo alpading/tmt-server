@@ -35,9 +35,6 @@ export class Restaurant {
   @Column({ name: 'has_table_seating', default: false })
   hasTableSeating: boolean;
 
-  @Column({ name: 'has_floor_seating', default: false })
-  hasFloorSeating: boolean;
-
   @Column({ name: 'has_group_seating', default: false })
   hasGroupSeating: boolean;
 

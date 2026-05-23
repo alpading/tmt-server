@@ -11,6 +11,16 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
   app.enableShutdownHooks();
 
+  app.enableCors({
+    origin: process.env.CORS_ORIGIN?.split(',') ?? [
+      'http://localhost:3001',
+      'http://localhost:5173',
+    ],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  });
+
   app.useGlobalFilters(new HttpExceptionFilter());
 
   app.useGlobalPipes(

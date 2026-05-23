@@ -34,7 +34,7 @@ export class SeedRatings1747353600022 implements MigrationInterface {
     const RC: Record<number, number[]> = {
       3:  [2, 3, 3, 2, 2, 2, 3, 3], // 요석궁         – clean/elegant/service
       4:  [2, 3, 3, 2, 2, 2, 2, 2], // 정록쌈밥        – mild/clean
-      5:  [3, 1, 2, 3, 2, 3, 1, 2], // 황남국밥        – oily/stim/noisy
+      5:  [3, 1, 2, 3, 2, 3, 1, 2], // 황남양옥        – oily/stim/noisy
       6:  [3, 2, 2, 3, 2, 2, 2, 3], // 포석로 소갈비찜  – oily/stim/service
       10: [1, 3, 3, 1, 1, 1, 2, 2], // 천마 맷돌순두부  – mild/clean/quiet
       13: [1, 3, 2, 1, 1, 2, 1, 2], // 교리김밥 본점   – mild/casual

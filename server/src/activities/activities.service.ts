@@ -101,7 +101,7 @@ export class ActivitiesService {
       WHERE ${whereClause}
       GROUP BY a.id, a.name, a.image_url
       ORDER BY score DESC
-      LIMIT 5
+      LIMIT 3
     `;
 
     const results = await this.activityRepo.manager.query(sql, params);

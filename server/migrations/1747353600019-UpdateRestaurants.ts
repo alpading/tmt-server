@@ -13,7 +13,7 @@ export class UpdateRestaurants1747353600019 implements MigrationInterface {
     // ── 이름 수정 + naver_place_id 업데이트 ──────────────────────────────────
     await queryRunner.query(`UPDATE "restaurants" SET naver_place_id = '1505892139' WHERE id = 3`); // 요석궁
     await queryRunner.query(`UPDATE "restaurants" SET name = '정록쌈밥',           naver_place_id = '15742693'   WHERE id = 4`);
-    await queryRunner.query(`UPDATE "restaurants" SET naver_place_id = '1937464680' WHERE id = 5`); // 황남국밥
+    await queryRunner.query(`UPDATE "restaurants" SET name = '황남양옥', naver_place_id = '1937464680' WHERE id = 5`); // 황남양옥
     await queryRunner.query(`UPDATE "restaurants" SET name = '포석로 소갈비찜',    naver_place_id = '1196479801' WHERE id = 6`);
     await queryRunner.query(`UPDATE "restaurants" SET name = '천마 맷돌순두부',    naver_place_id = '1900502536' WHERE id = 10`);
     await queryRunner.query(`UPDATE "restaurants" SET name = '교리김밥 본점',      naver_place_id = '21701372'   WHERE id = 13`);

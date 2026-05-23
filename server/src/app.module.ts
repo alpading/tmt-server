@@ -9,6 +9,7 @@ import { ActivitiesModule } from './activities/activities.module';
 import { PreferencesModule } from './preferences/preferences.module';
 import { ThemesModule } from './themes/themes.module';
 import { StatModule } from './stat/stat.module';
+import { RegionsModule } from './regions/regions.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { StatModule } from './stat/stat.module';
     PreferencesModule,
     ThemesModule,
     StatModule,
+    RegionsModule,
   ],
 })
 export class AppModule {}

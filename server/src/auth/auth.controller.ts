@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
@@ -8,6 +8,13 @@ import { JwtAuthGuard } from './jwt-auth.guard';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  @Get('check-id')
+  @HttpCode(200)
+  async checkId(@Query('loginId') loginId: string) {
+    const exists = await this.authService.checkLoginIdExists(loginId);
+    return { exists };
+  }
 
   @Post('signup')
   signup(@Body() dto: SignupDto) {

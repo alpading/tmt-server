@@ -16,7 +16,6 @@ const RESTAURANT_BASIC_FILTERS = [
   { key: 'hasSingleSeating',  label: '혼밥 전용 공간' },
   { key: 'allowsPets',        label: '애견 동반' },
   { key: 'hasTableSeating',   label: '입식' },
-  { key: 'hasFloorSeating',   label: '좌식' },
   { key: 'hasBarTable',       label: '바테이블' },
   { key: 'hasBabyChair',      label: '유아 의자' },
   { key: 'hasGroupSeating',   label: '단체석' },
@@ -28,7 +27,6 @@ const RESTAURANT_BASIC_COL_MAP: Record<string, string> = {
   hasSingleSeating: 'has_single_seating',
   allowsPets:       'allows_pets',
   hasTableSeating:  'has_table_seating',
-  hasFloorSeating:  'has_floor_seating',
   hasBarTable:      'has_bar_table',
   hasBabyChair:     'has_baby_chair',
   hasGroupSeating:  'has_group_seating',
@@ -117,7 +115,7 @@ export class RestaurantsService {
       WHERE ${whereClause}
       GROUP BY r.id, r.name, r.image_url
       ORDER BY score DESC
-      LIMIT 5
+      LIMIT 3
     `;
 
     const results = await this.restaurantRepo.manager.query(sql, params);
@@ -184,10 +182,11 @@ export class RestaurantsService {
     );
   }
 
-  async findOne(id: number): Promise<Restaurant> {
+  async findOne(id: number) {
     const restaurant = await this.restaurantRepo.findOne({ where: { id } });
     if (!restaurant) throw new NotFoundException(ERROR_CODE.RESOURCE_NOT_FOUND, '존재하지 않는 식당입니다.');
-    return restaurant;
+    const category = await this.categoryRepo.findOne({ where: { id: restaurant.restaurantCategoryId }, select: { name: true } });
+    return { ...restaurant, categoryName: category?.name ?? null };
   }
 
   async createRating(userId: number, dto: CreateRestaurantRatingDto): Promise<RestaurantRating> {

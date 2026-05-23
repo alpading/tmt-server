@@ -35,10 +35,6 @@ export class CreateRestaurantDto {
 
   @IsBoolean()
   @IsOptional()
-  hasFloorSeating?: boolean;
-
-  @IsBoolean()
-  @IsOptional()
   hasGroupSeating?: boolean;
 
   @IsBoolean()
