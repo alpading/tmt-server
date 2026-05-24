@@ -69,7 +69,7 @@ export default function RestaurantRecommendationsPage() {
       {/* Main Content */}
       <main className="pt-32 pb-20">
         <div className="max-w-[1100px] mx-auto px-8 mb-12">
-          <h1 className="text-3xl md:text-4xl font-black text-black mb-4">나에게 딱 맞는 추천 식당 TOP 5</h1>
+          <h1 className="text-3xl md:text-4xl font-black text-black mb-4">나에게 딱 맞는 추천 식당 TOP 3</h1>
           <div className="w-24 h-2 bg-black"></div>
         </div>
 

@@ -111,44 +111,33 @@ export default function EditProfilePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setNameError('');
-    setBirthdayError('');
     setGeneralError('');
     setSaveSuccess(false);
 
     const isNameValid = /^[가-힣]{1,7}$/.test(formData.name);
-    const isBirthdayValid = validateBirthDateString(formData.birthday);
-
     if (!isNameValid) {
       setNameError('형식에 맞는 올바른 이름으로 수정해주세요.');
-    }
-    if (!isBirthdayValid) {
-      setBirthdayError('정확한 생년월일을 입력하세요.');
+      return;
     }
 
-    if (isNameValid && isBirthdayValid) {
-      setSaving(true);
-      try {
-        // Map Korean text bounds back to exact backend types
-        const backendGender = formData.gender === '여성' ? 'female' : 'male';
-        const backendTendency = formData.tendency === '테토' ? 'teto' : 'egen';
+    setSaving(true);
+    try {
+      const backendTendency = formData.tendency === '테토' ? 'teto' : 'egen';
 
-        await updateProfile({
-          name: formData.name,
-          gender: backendGender,
-          birthDate: formData.birthday,
-          mbti: formData.mbti,
-          tendency: backendTendency
-        });
+      await updateProfile({
+        name: formData.name,
+        mbti: formData.mbti,
+        tendency: backendTendency,
+      });
 
-        setSaveSuccess(true);
-        setTimeout(() => {
-          navigate('/mypage');
-        }, 1500);
-      } catch (err: any) {
-        setGeneralError(err.message || '프로필 변경 도중 오류가 발생했습니다.');
-      } finally {
-        setSaving(false);
-      }
+      setSaveSuccess(true);
+      setTimeout(() => {
+        navigate('/mypage');
+      }, 1500);
+    } catch (err: any) {
+      setGeneralError(err.message || '프로필 변경 도중 오류가 발생했습니다.');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -233,52 +222,39 @@ export default function EditProfilePage() {
               <label className="text-xs font-bold text-neutral-400 uppercase tracking-widest ml-1 flex items-center gap-1">
                 아이디 <Lock className="w-3 h-3" />
               </label>
-              <input 
-                className="w-full px-6 py-4 bg-neutral-100 text-neutral-400 border-transparent focus:ring-0 rounded-full font-bold cursor-not-allowed" 
-                readOnly 
-                type="text" 
-                value="example_user" 
+              <input
+                className="w-full px-6 py-4 bg-neutral-100 text-neutral-400 border-transparent focus:ring-0 rounded-full font-bold cursor-not-allowed"
+                readOnly
+                type="text"
+                value={user?.loginId || ''}
               />
             </div>
 
-            {/* Row for Gender and Birthday */}
+            {/* Row for Gender and Birthday — 변경 불가 */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-xs font-bold text-neutral-400 uppercase tracking-widest ml-1">성별</label>
-                <div className="flex p-1 bg-neutral-50 rounded-full">
-                  <button 
-                    type="button"
-                    onClick={() => setFormData({...formData, gender: '남성'})}
-                    className={`flex-1 py-3 px-4 rounded-full text-sm font-bold transition-all ${
-                      formData.gender === '남성' ? 'bg-black text-white' : 'text-neutral-400 hover:text-black'
-                    }`}
-                  >남성</button>
-                  <button 
-                    type="button"
-                    onClick={() => setFormData({...formData, gender: '여성'})}
-                    className={`flex-1 py-3 px-4 rounded-full text-sm font-bold transition-all ${
-                      formData.gender === '여성' ? 'bg-black text-white' : 'text-neutral-400 hover:text-black'
-                    }`}
-                  >여성</button>
+                <label className="text-xs font-bold text-neutral-400 uppercase tracking-widest ml-1 flex items-center gap-1">
+                  성별 <Lock className="w-3 h-3" />
+                </label>
+                <div className="flex p-1 bg-neutral-100 rounded-full">
+                  <div className={`flex-1 py-3 px-4 rounded-full text-sm font-bold text-center ${
+                    formData.gender === '남성' ? 'bg-neutral-300 text-neutral-600' : 'text-neutral-400'
+                  }`}>남성</div>
+                  <div className={`flex-1 py-3 px-4 rounded-full text-sm font-bold text-center ${
+                    formData.gender === '여성' ? 'bg-neutral-300 text-neutral-600' : 'text-neutral-400'
+                  }`}>여성</div>
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-bold text-neutral-400 uppercase tracking-widest ml-1">생년월일</label>
-                <input 
-                  className={`w-full px-6 py-4 bg-neutral-50 border focus:ring-0 rounded-full font-bold transition-all ${
-                    birthdayError 
-                      ? 'border-red-500 focus:border-red-500 text-red-900 bg-red-50/50' 
-                      : 'border-transparent focus:border-black text-on-surface'
-                  }`} 
-                  maxLength={8} 
-                  type="text" 
+                <label className="text-xs font-bold text-neutral-400 uppercase tracking-widest ml-1 flex items-center gap-1">
+                  생년월일 <Lock className="w-3 h-3" />
+                </label>
+                <input
+                  className="w-full px-6 py-4 bg-neutral-100 text-neutral-400 border-transparent focus:ring-0 rounded-full font-bold cursor-not-allowed"
+                  readOnly
+                  type="text"
                   value={formData.birthday}
-                  onChange={(e) => handleBirthdayChange(e.target.value)}
-                  onBlur={handleBirthdayBlur}
                 />
-                {birthdayError && (
-                  <p className="text-xs font-bold text-red-500 ml-3 mt-1">{birthdayError}</p>
-                )}
               </div>
             </div>
 

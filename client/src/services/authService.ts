@@ -55,6 +55,7 @@ const toClientDate = (serverDate: string): string =>
 /** 서버 User → 클라이언트 User */
 const toClientUser = (p: ProfileResponse): User => ({
   id: String(p.id),
+  loginId: p.loginId ?? '',
   name: p.name,
   gender: toClientGender(p.gender),
   birthDate: toClientDate(p.birthDate),

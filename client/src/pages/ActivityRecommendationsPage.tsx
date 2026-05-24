@@ -65,7 +65,7 @@ export default function ActivityRecommendationsPage() {
 
       <main className="pt-32 pb-20">
         <div className="max-w-[1100px] mx-auto px-8 mb-12">
-          <h1 className="text-3xl md:text-4xl font-black text-black mb-4">나에게 딱 맞는 액티비티 TOP 5</h1>
+          <h1 className="text-3xl md:text-4xl font-black text-black mb-4">나에게 딱 맞는 액티비티 TOP 3</h1>
           <div className="w-24 h-2 bg-black"></div>
         </div>
 

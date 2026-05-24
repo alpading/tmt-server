@@ -1,5 +1,6 @@
 export interface User {
   id: string;
+  loginId?: string;
   name: string;
   gender: 'male' | 'female' | '남성' | '여성';
   birthDate: string; // YYYYMMDD
