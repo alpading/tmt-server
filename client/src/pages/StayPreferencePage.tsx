@@ -16,7 +16,7 @@ export default function StayPreferencePage() {
 
   const typeOptions = [
     '상관없어요', '호텔', '모텔', '펜션',
-    '게스트하우스/호스텔', '캠핑/글램핑', '리조트',
+    '캠핑/글램핑', '리조트',
     '한옥/템플스테이', '민박'
   ];
 
@@ -27,8 +27,8 @@ export default function StayPreferencePage() {
 
   const TYPE_CATEGORY_MAP: Record<string, number> = {
     '호텔': 1, '모텔': 2, '펜션': 3,
-    '게스트하우스/호스텔': 4, '캠핑/글램핑': 5,
-    '리조트': 6, '한옥/템플스테이': 7, '민박': 8,
+    '캠핑/글램핑': 5, '리조트': 6,
+    '한옥/템플스테이': 7, '민박': 8,
   };
   const FILTER_KEY_MAP: Record<string, string> = {
     '주차 공간': 'hasParking',
