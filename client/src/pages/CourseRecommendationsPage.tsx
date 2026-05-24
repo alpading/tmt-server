@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Heart, Smile, User, Loader2, AlertCircle } from 'lucide-react';
 import { travelService, mapItinerary } from '../services/travelService';
 
@@ -18,6 +18,8 @@ interface CourseSpot {
 
 export default function CourseRecommendationsPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isViewingSaved = !!(location.state as any)?.savedItinerary;
   const [selectedRegion, setSelectedRegion] = useState('제주도');
   const [selectedDistrict, setSelectedDistrict] = useState('서귀포시');
   const [themeName, setThemeName] = useState('스릴만점 액티비티 여행');
@@ -35,6 +37,27 @@ export default function CourseRecommendationsPage() {
   const [itineraryError, setItineraryError] = useState(false);
 
   useEffect(() => {
+    // 저장된 코스 상세보기 모드
+    const stateData = location.state as {
+      savedItinerary?: CourseSpot[];
+      savedCourseName?: string;
+      savedCourseId?: number;
+      savedDuration?: number;
+    } | null;
+
+    if (stateData?.savedItinerary) {
+      setItinerary(stateData.savedItinerary);
+      setSavedCourseId(stateData.savedCourseId ?? null);
+      setSavedCourseTitle(stateData.savedCourseName ?? '');
+      setCustomCourseName(stateData.savedCourseName ?? '');
+      setSelectedDuration(stateData.savedDuration ?? 1);
+      setActiveDay(1);
+      setIsSaved(true);
+      setLoadingItinerary(false);
+      return;
+    }
+
+    // 일반 신규 추천 모드
     const region      = localStorage.getItem('selectedRegion')    || '제주도';
     const district    = localStorage.getItem('selectedDistrict')  || '서귀포시';
     const districtId  = Number(localStorage.getItem('selectedDistrictId') || '0');
@@ -69,11 +92,8 @@ export default function CourseRecommendationsPage() {
     async function checkSavedStatus() {
       try {
         const savedList = await travelService.getSavedCourses();
-        const viewingTitle = localStorage.getItem('viewingSavedCourseTitle');
-        const defaultName  = `${region} ${savedThemeName} 코스`;
-        const matched = savedList.find(c =>
-          c.title === (viewingTitle || defaultName)
-        );
+        const defaultName = `${region} ${savedThemeName} 코스`;
+        const matched = savedList.find(c => c.title === defaultName);
         if (matched) {
           setIsSaved(true);
           setSavedCourseTitle(matched.title);
@@ -193,12 +213,12 @@ export default function CourseRecommendationsPage() {
         
         {/* Top Header Controls */}
         <div className="flex items-center justify-between mb-6 md:mb-4">
-          <button 
-            onClick={() => navigate('/theme-selection')}
+          <button
+            onClick={() => isViewingSaved ? navigate('/saved-courses') : navigate('/theme-selection')}
             className="flex items-center gap-2 text-neutral-500 hover:text-black transition-colors font-bold text-xs md:text-sm cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>테마 선택으로 가기</span>
+            <span>{isViewingSaved ? '저장된 코스로 돌아가기' : '테마 선택으로 가기'}</span>
           </button>
 
           <div className="flex items-center gap-2">
@@ -325,18 +345,20 @@ export default function CourseRecommendationsPage() {
 
         {/* Back and Confirm Button Box */}
         <div className="mt-12 text-center space-y-3">
-          <button 
-            onClick={() => navigate('/main')}
+          <button
+            onClick={() => navigate(isViewingSaved ? '/saved-courses' : '/main')}
             className="w-full bg-black text-white py-4 rounded-full font-black tracking-tight text-base shadow-lg shadow-black/10 hover:bg-neutral-800 active:scale-95 transition-all text-center select-none cursor-pointer"
           >
-            확인 및 홈으로 이동 ✨
+            {isViewingSaved ? '코스 목록으로 돌아가기 ✨' : '확인 및 홈으로 이동 ✨'}
           </button>
-          <button 
-            onClick={() => navigate('/theme-selection')}
-            className="text-xs font-bold text-neutral-500 hover:text-black transition-colors underline decoration-2 cursor-pointer"
-          >
-            다른 테마 코스 찾아보기
-          </button>
+          {!isViewingSaved && (
+            <button
+              onClick={() => navigate('/theme-selection')}
+              className="text-xs font-bold text-neutral-500 hover:text-black transition-colors underline decoration-2 cursor-pointer"
+            >
+              다른 테마 코스 찾아보기
+            </button>
+          )}
         </div>
       </main>
 

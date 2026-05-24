@@ -220,7 +220,7 @@ export class UsersService {
     if (!course) throw new NotFoundException(ERROR_CODE.RESOURCE_NOT_FOUND);
     if (course.userId !== userId) throw new ForbiddenException(ERROR_CODE.FORBIDDEN);
 
-    const rows: Array<{ domain: string; itemId: number; day: number; itemOrder: number; name: string; imageUrl: string }> =
+    const rows: Array<{ domain: string; itemId: number; day: number; itemOrder: number; name: string; imageUrl: string; avgRating: number | null }> =
       await this.courseRepo.manager.query(
         `
         SELECT
@@ -228,20 +228,30 @@ export class UsersService {
           ci.item_id    AS "itemId",
           ci.day,
           ci.item_order AS "itemOrder",
-          COALESCE(r.name, s.name, a.name)          AS name,
-          COALESCE(r.image_url, s.image_url, a.image_url) AS "imageUrl"
+          COALESCE(r.name, s.name, a.name)                AS name,
+          COALESCE(r.image_url, s.image_url, a.image_url) AS "imageUrl",
+          ROUND(COALESCE(
+            AVG(rr.overall_rating),
+            AVG(sr.overall_rating),
+            AVG(ar.overall_rating)
+          )::numeric, 1)::float AS "avgRating"
         FROM course_items ci
         LEFT JOIN restaurants r  ON ci.domain = 'restaurant' AND r.id  = ci.item_id
         LEFT JOIN stays s        ON ci.domain = 'stay'       AND s.id  = ci.item_id
         LEFT JOIN activities a   ON ci.domain = 'activity'   AND a.id  = ci.item_id
+        LEFT JOIN restaurant_ratings rr ON ci.domain = 'restaurant' AND rr.restaurant_id = ci.item_id AND rr.deleted_at IS NULL
+        LEFT JOIN stay_ratings sr       ON ci.domain = 'stay'       AND sr.stay_id       = ci.item_id AND sr.deleted_at IS NULL
+        LEFT JOIN activity_ratings ar   ON ci.domain = 'activity'   AND ar.activity_id   = ci.item_id AND ar.deleted_at IS NULL
         WHERE ci.course_id = $1
+        GROUP BY ci.domain, ci.item_id, ci.day, ci.item_order,
+                 r.name, r.image_url, s.name, s.image_url, a.name, a.image_url
         ORDER BY ci.item_order
         `,
         [courseId],
       );
 
     const stayRow = rows.find((r) => r.domain === 'stay');
-    const stay = stayRow ? { id: stayRow.itemId, name: stayRow.name, imageUrl: stayRow.imageUrl } : null;
+    const stay = stayRow ? { id: stayRow.itemId, name: stayRow.name, imageUrl: stayRow.imageUrl, avgRating: stayRow.avgRating } : null;
 
     const dayMap = new Map<number, { restaurants: object[]; activity: object | null }>();
     for (let d = 1; d <= course.duration; d++) dayMap.set(d, { restaurants: [], activity: null });
@@ -250,7 +260,7 @@ export class UsersService {
       if (row.domain === 'stay') continue;
       const slot = dayMap.get(row.day);
       if (!slot) continue;
-      const item = { id: row.itemId, name: row.name, imageUrl: row.imageUrl };
+      const item = { id: row.itemId, name: row.name, imageUrl: row.imageUrl, avgRating: row.avgRating };
       if (row.domain === 'restaurant') slot.restaurants.push(item);
       else slot.activity = item;
     }

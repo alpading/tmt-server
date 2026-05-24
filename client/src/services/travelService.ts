@@ -10,6 +10,14 @@ interface FavListResponse  { restaurants: FavRestaurantRow[]; stays: FavStayRow[
 // ─── 서버 코스 응답 타입 ───────────────────────────────────────────────────────
 interface CourseListItem { id: number; themeId: number; name: string; duration: number; createdAt: string }
 
+interface SavedCourseDetailItem { id: number; name: string; imageUrl: string; avgRating: number | null }
+interface SavedCourseScheduleSlot { day: number; restaurants: SavedCourseDetailItem[]; activity: SavedCourseDetailItem | null }
+export interface SavedCourseDetailResponse {
+  id: number; themeId: number; name: string; duration: number; createdAt: string;
+  stay: SavedCourseDetailItem | null;
+  schedule: SavedCourseScheduleSlot[];
+}
+
 export interface PlaceDetail {
   name: string;
   category: string;
@@ -162,6 +170,46 @@ export function mapItinerary(data: ItineraryResponse): import('../types').Course
 }
 
 
+/** SavedCourseDetailResponse → CourseSpot[] 변환 */
+export function mapSavedCourse(data: SavedCourseDetailResponse): import('../types').CourseSpot[] {
+  const spots: import('../types').CourseSpot[] = [];
+
+  if (data.stay) {
+    spots.push({
+      itemId: data.stay.id,
+      day: 1, category: 'stay',
+      name: data.stay.name,
+      rating: data.stay.avgRating ?? 0,
+      image: data.stay.imageUrl || PLACEHOLDER.stay,
+      desc: '추천 숙소', memo: '',
+    });
+  }
+
+  for (const slot of data.schedule) {
+    for (const r of slot.restaurants) {
+      spots.push({
+        itemId: r.id,
+        day: slot.day, category: 'restaurant',
+        name: r.name,
+        rating: r.avgRating ?? 0,
+        image: r.imageUrl || PLACEHOLDER.restaurant,
+        desc: '현지 인기 맛집', memo: '',
+      });
+    }
+    if (slot.activity) {
+      spots.push({
+        itemId: slot.activity.id,
+        day: slot.day, category: 'activity',
+        name: slot.activity.name,
+        rating: slot.activity.avgRating ?? 0,
+        image: slot.activity.imageUrl || PLACEHOLDER.activity,
+        desc: '이 지역 대표 액티비티', memo: '',
+      });
+    }
+  }
+  return spots;
+}
+
 export const travelService = {
   /**
    * GET /api/regions — 지도에 표시할 시/도 목록 (좌표 포함)
@@ -276,6 +324,12 @@ export const travelService = {
     schedule: { day: number; restaurants: { id: number }[]; activity?: { id: number } }[];
   }): Promise<{ courseId: number }> {
     const { data } = await apiClient.post<{ courseId: number }>('/me/course', dto);
+    return data;
+  },
+
+  /** GET /me/course/:courseId — 저장된 코스 상세 조회 */
+  async getSavedCourseDetail(courseId: number): Promise<SavedCourseDetailResponse> {
+    const { data } = await apiClient.get<SavedCourseDetailResponse>(`/me/course/${courseId}`);
     return data;
   },
 

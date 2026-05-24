@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import { Search, User, ArrowLeft, Heart, Clock, MapPin, Moon, Waves, TreePine, PlusCircle, Loader2 } from 'lucide-react';
-import { travelService } from '../services/travelService';
+import { travelService, mapSavedCourse } from '../services/travelService';
 import { useAuth } from '../context/AuthContext';
 
 export default function SavedCoursesPage() {
@@ -10,6 +10,7 @@ export default function SavedCoursesPage() {
   const { user } = useAuth();
   const [courses, setCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [viewingCourseId, setViewingCourseId] = useState<number | null>(null);
 
   useEffect(() => {
     async function loadCourses() {
@@ -18,10 +19,11 @@ export default function SavedCoursesPage() {
         // Real API Note: Replace with GET '/api/saved-courses'
         const saved = await travelService.getSavedCourses();
         const mapped = saved.map(item => ({
+          id: item.id,
           title: item.title,
           info: item.info || '2박 3일',
           image: item.image,
-          iconType: item.title.includes('해안') ? 'clock' : item.title.includes('야경') ? 'moon' : 'tree'
+          iconType: item.iconType || 'tree',
         }));
         setCourses(mapped);
       } catch (err) {
@@ -42,6 +44,28 @@ export default function SavedCoursesPage() {
       case 'tree':
       default:
         return <TreePine className="w-4 h-4" />;
+    }
+  };
+
+  const handleViewCourse = async (courseId: number | undefined, courseTitle: string) => {
+    if (!courseId) { alert('코스 정보를 불러올 수 없습니다.'); return; }
+    setViewingCourseId(courseId);
+    try {
+      const detail = await travelService.getSavedCourseDetail(courseId);
+      const spots = mapSavedCourse(detail);
+      navigate('/course-recommendations', {
+        state: {
+          savedItinerary: spots,
+          savedCourseName: courseTitle,
+          savedCourseId: courseId,
+          savedDuration: detail.duration,
+        },
+      });
+    } catch (err) {
+      console.error('[SavedCoursesPage] 상세보기 실패', err);
+      alert('코스 정보를 불러오지 못했습니다.');
+    } finally {
+      setViewingCourseId(null);
     }
   };
 
@@ -146,29 +170,14 @@ export default function SavedCoursesPage() {
                     <span>{course.info ? course.info.split('•')[0].trim() : ''}</span>
                   </div>
                   <h3 className="text-lg font-black mb-4 text-primary tracking-tight leading-snug">{course.title}</h3>
-                  <button 
-                    onClick={() => {
-                      // Cache the loaded theme/destination settings so they can display details if matching
-                      if (course.title.includes('코스')) {
-                        const regionAndTheme = course.title.replace(' 코스', '').split(' ');
-                        if (regionAndTheme.length >= 2) {
-                          localStorage.setItem('selectedRegion', regionAndTheme[0]);
-                          localStorage.setItem('selectedThemeName', regionAndTheme.slice(1).join(' '));
-                          // Find themeId if matches THEMES
-                          if (course.title.includes('액티비티')) localStorage.setItem('selectedThemeId', '1');
-                          else if (course.title.includes('인스타')) localStorage.setItem('selectedThemeId', '2');
-                          else if (course.title.includes('식도락')) localStorage.setItem('selectedThemeId', '3');
-                          else localStorage.setItem('selectedThemeId', '4');
-                          localStorage.setItem('viewingSavedCourseTitle', course.title);
-                          navigate('/course-recommendations');
-                          return;
-                        }
-                      }
-                      alert(`${course.title}의 상세 일정 분석을 준비 중입니다.`);
-                    }}
-                    className="w-full bg-black text-white py-2 rounded-full font-bold text-xs hover:bg-neutral-800 transition-colors active:scale-95 shadow-md shadow-black/5 cursor-pointer"
+                  <button
+                    onClick={() => handleViewCourse(course.id, course.title)}
+                    disabled={viewingCourseId === course.id}
+                    className="w-full bg-black text-white py-2 rounded-full font-bold text-xs hover:bg-neutral-800 transition-colors active:scale-95 shadow-md shadow-black/5 cursor-pointer disabled:opacity-60 flex items-center justify-center gap-1"
                   >
-                    상세보기
+                    {viewingCourseId === course.id ? (
+                      <><Loader2 className="w-3 h-3 animate-spin" /><span>불러오는 중...</span></>
+                    ) : '상세보기'}
                   </button>
                 </div>
               </motion.div>
