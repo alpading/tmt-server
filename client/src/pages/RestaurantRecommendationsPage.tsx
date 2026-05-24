@@ -94,7 +94,7 @@ export default function RestaurantRecommendationsPage() {
 
         {!loading && !error && results.length > 0 && (
           <div className="overflow-x-auto px-8 custom-scrollbar scroll-smooth">
-            <div className="flex gap-8 pb-8 min-w-max">
+            <div className="flex justify-center gap-8 pb-8 min-w-max mx-auto">
               {results.map((restaurant, index) => (
                 <motion.div
                   key={restaurant.id}
