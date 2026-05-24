@@ -123,16 +123,15 @@ export class ThemesService {
     const { districtId, limit = 10, entityFilters = [], caseWhenCond, extraJoin = '', extraParams = [] } = opts;
     const params: (string | number)[] = [districtId, ...extraParams];
 
+    // score = (1 + 0.5 × (filtered_avg - absolute_avg)) × absolute_avg
+    // filtered_avg가 NULL(타겟 그룹 리뷰 없음)이면 deviation=0 → score=absolute_avg
     const scoreExpr = caseWhenCond
-      ? `ABS(AVG(rr.overall_rating)) + 0.5 * (COALESCE(AVG(CASE WHEN ${caseWhenCond} THEN rr.overall_rating::float END), 0) - g.global_mean)`
-      : `ABS(AVG(rr.overall_rating))`;
+      ? `AVG(rr.overall_rating) * (1 + 0.5 * COALESCE(AVG(CASE WHEN ${caseWhenCond} THEN rr.overall_rating::float END) - AVG(rr.overall_rating), 0))`
+      : `AVG(rr.overall_rating)`;
 
     const filterSql = entityFilters.length ? `AND ${entityFilters.join(' AND ')}` : '';
 
     const sql = `
-      WITH global_stats AS (
-        SELECT AVG(overall_rating)::float AS global_mean FROM ${dc.ratingTable} WHERE deleted_at IS NULL
-      )
       SELECT
         e.id,
         e.name,
@@ -142,11 +141,10 @@ export class ThemesService {
       FROM ${dc.table} e
       INNER JOIN ${dc.ratingTable} rr ON rr.${dc.fkCol} = e.id AND rr.deleted_at IS NULL
       ${extraJoin}
-      CROSS JOIN global_stats g
       WHERE e.${dc.districtCol} = $1
         AND e.deleted_at IS NULL
         ${filterSql}
-      GROUP BY e.id, e.name, e.image_url, g.global_mean
+      GROUP BY e.id, e.name, e.image_url
       ORDER BY score DESC NULLS LAST
       LIMIT ${limit}
     `;
