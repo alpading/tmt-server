@@ -242,7 +242,7 @@ export default function SignUpPage() {
       <div className="absolute inset-0 z-0">
         <img alt="Breathtaking aerial view of an emerald green tropical beach" 
           className="w-full h-full object-cover" 
-          src="https://tmt-gyeongju.s3.ap-northeast-2.amazonaws.com/basic/%EB%B0%B0%EA%B2%BD%EC%9D%B4%EB%AF%B8%EC%A7%80.png" referrerPolicy="no-referrer" />
+          src="https://tmt-gyeongju.s3.ap-northeast-2.amazonaws.com/basic/background.png" referrerPolicy="no-referrer" />
         <div className="absolute inset-0 bg-black/10"></div>
       </div>
 

@@ -39,7 +39,7 @@ export default function LoginPage() {
         {/* Left Section: Image */}
         <div className="hidden md:block relative overflow-hidden">
           <img 
-            src="https://tmt-gyeongju.s3.ap-northeast-2.amazonaws.com/basic/%EB%B0%B0%EA%B2%BD%EC%9D%B4%EB%AF%B8%EC%A7%80.png" 
+            src="https://tmt-gyeongju.s3.ap-northeast-2.amazonaws.com/basic/background.png" 
             alt="Travel Destination" 
             className="absolute inset-0 w-full h-full object-cover transition-all duration-1000 hover:scale-105"
             referrerPolicy="no-referrer"
