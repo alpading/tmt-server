@@ -86,7 +86,8 @@ export interface ItineraryItem {
   id: number;
   name: string;
   imageUrl: string;
-  score: number;
+  score: number;      // 랭킹용 가중 점수
+  avgRating: number;  // 표시용 평균 총 평점
 }
 
 /** 하루 일정 */
@@ -123,7 +124,7 @@ export function mapItinerary(data: ItineraryResponse): import('../types').Course
       itemId: r.id,
       day, category: 'restaurant',
       name: r.name,
-      rating: Math.round(r.score * 10) / 10,
+      rating: r.avgRating ?? Math.round(r.score * 10) / 10,
       image: r.imageUrl || PLACEHOLDER.restaurant,
       desc, memo: '',
     });
@@ -135,7 +136,7 @@ export function mapItinerary(data: ItineraryResponse): import('../types').Course
       itemId: data.stay.id,
       day: 1, category: 'stay',
       name: data.stay.name,
-      rating: Math.round(data.stay.score * 10) / 10,
+      rating: data.stay.avgRating ?? Math.round(data.stay.score * 10) / 10,
       image: data.stay.imageUrl || PLACEHOLDER.stay,
       desc: '추천 숙소', memo: '',
     });
@@ -149,7 +150,7 @@ export function mapItinerary(data: ItineraryResponse): import('../types').Course
         itemId: activity.id,
         day, category: 'activity',
         name: activity.name,
-        rating: Math.round(activity.score * 10) / 10,
+        rating: activity.avgRating ?? Math.round(activity.score * 10) / 10,
         image: activity.imageUrl || PLACEHOLDER.activity,
         desc: '이 지역 대표 액티비티', memo: '',
       });

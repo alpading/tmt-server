@@ -14,6 +14,7 @@ export interface ItemResult {
   name: string;
   imageUrl: string;
   score: number;
+  avgRating: number;
 }
 
 interface DomainConfig {
@@ -136,7 +137,8 @@ export class ThemesService {
         e.id,
         e.name,
         e.image_url AS "imageUrl",
-        ROUND((${scoreExpr})::numeric, 4)::float AS score
+        ROUND((${scoreExpr})::numeric, 4)::float AS score,
+        ROUND(AVG(rr.overall_rating)::numeric, 1)::float AS "avgRating"
       FROM ${dc.table} e
       INNER JOIN ${dc.ratingTable} rr ON rr.${dc.fkCol} = e.id AND rr.deleted_at IS NULL
       ${extraJoin}
@@ -169,7 +171,8 @@ export class ThemesService {
           (ABS(AVG(rr.overall_rating)) /
            NULLIF(AVG(rr.total_spent_amount::float / NULLIF(rr.visit_party_size, 0)), 0) * 1000
           )::numeric, 4
-        )::float AS score
+        )::float AS score,
+        ROUND(AVG(rr.overall_rating)::numeric, 1)::float AS "avgRating"
       FROM ${dc.table} e
       INNER JOIN ${dc.ratingTable} rr ON rr.${dc.fkCol} = e.id AND rr.deleted_at IS NULL
       WHERE e.${dc.districtCol} = $1
@@ -196,7 +199,8 @@ export class ThemesService {
         e.id,
         e.name,
         e.image_url AS "imageUrl",
-        ROUND(ABS(AVG(rr.overall_rating))::numeric, 4)::float AS score
+        ROUND(ABS(AVG(rr.overall_rating))::numeric, 4)::float AS score,
+        ROUND(AVG(rr.overall_rating)::numeric, 1)::float AS "avgRating"
       FROM restaurants e
       INNER JOIN restaurant_ratings rr ON rr.restaurant_id = e.id AND rr.deleted_at IS NULL
       INNER JOIN pp ON pp.restaurant_id = e.id
