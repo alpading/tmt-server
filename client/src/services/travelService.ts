@@ -2,9 +2,9 @@ import { apiClient } from './apiClient';
 import { CourseSpot, SavedCourse, SavedPlace } from '../types';
 
 // ─── 서버 즐겨찾기 응답 타입 ───────────────────────────────────────────────────
-interface FavRestaurantRow { id: number; restaurantId: number; restaurant: { name: string; imageUrl: string } }
-interface FavStayRow       { id: number; stayId: number;       stay:       { name: string; imageUrl: string } }
-interface FavActivityRow   { id: number; activityId: number;   activity:   { name: string; imageUrl: string } }
+interface FavRestaurantRow { id: number; restaurantId: number; restaurant: { name: string; imageUrl: string }; avgRating: number | null }
+interface FavStayRow       { id: number; stayId: number;       stay:       { name: string; imageUrl: string }; avgRating: number | null }
+interface FavActivityRow   { id: number; activityId: number;   activity:   { name: string; imageUrl: string }; avgRating: number | null }
 interface FavListResponse  { restaurants: FavRestaurantRow[]; stays: FavStayRow[]; activities: FavActivityRow[] }
 
 // ─── 서버 코스 응답 타입 ───────────────────────────────────────────────────────
@@ -213,12 +213,14 @@ export const travelService = {
   /** GET /me/favorites/list — 저장된 장소 목록 */
   async getSavedPlaces(): Promise<SavedPlace[]> {
     const { data } = await apiClient.get<FavListResponse>('/me/favorites/list');
+    const toRating = (avg: number | null) =>
+      avg != null ? String(avg) : '-';
     const places: SavedPlace[] = [];
     for (const r of data.restaurants ?? []) {
       places.push({
         itemId: r.restaurantId, domain: 'restaurant',
         name: r.restaurant.name, category: '식당',
-        location: '식당', rating: '-',
+        location: '식당', rating: toRating(r.avgRating),
         image: r.restaurant.imageUrl || PLACEHOLDER.restaurant,
       });
     }
@@ -226,7 +228,7 @@ export const travelService = {
       places.push({
         itemId: s.stayId, domain: 'stay',
         name: s.stay.name, category: '숙소',
-        location: '숙소', rating: '-',
+        location: '숙소', rating: toRating(s.avgRating),
         image: s.stay.imageUrl || PLACEHOLDER.stay,
       });
     }
@@ -234,7 +236,7 @@ export const travelService = {
       places.push({
         itemId: a.activityId, domain: 'activity',
         name: a.activity.name, category: '액티비티',
-        location: '액티비티', rating: '-',
+        location: '액티비티', rating: toRating(a.avgRating),
         image: a.activity.imageUrl || PLACEHOLDER.activity,
       });
     }

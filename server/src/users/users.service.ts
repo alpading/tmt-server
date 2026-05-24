@@ -103,24 +103,65 @@ export class UsersService {
   }
 
   async getFavorites(userId: number) {
+    const mgr = this.userRepo.manager;
+
     const [restaurants, stays, activities] = await Promise.all([
-      this.favRestaurantRepo.find({
-        where: { userId },
-        relations: { restaurant: true },
-        select: { id: true, restaurantId: true, restaurant: { name: true, imageUrl: true } },
-      }),
-      this.favStayRepo.find({
-        where: { userId },
-        relations: { stay: true },
-        select: { id: true, stayId: true, stay: { name: true, imageUrl: true } },
-      }),
-      this.favActivityRepo.find({
-        where: { userId },
-        relations: { activity: true },
-        select: { id: true, activityId: true, activity: { name: true, imageUrl: true } },
-      }),
+      mgr.query(
+        `SELECT fr.id, fr.restaurant_id AS "restaurantId",
+                r.name AS "restaurantName", r.image_url AS "restaurantImageUrl",
+                ROUND(AVG(rr.overall_rating)::numeric, 1)::float AS "avgRating"
+         FROM favorite_restaurants fr
+         JOIN restaurants r ON r.id = fr.restaurant_id
+         LEFT JOIN restaurant_ratings rr ON rr.restaurant_id = r.id AND rr.deleted_at IS NULL
+         WHERE fr.user_id = $1
+         GROUP BY fr.id, fr.restaurant_id, r.name, r.image_url`,
+        [userId],
+      ),
+      mgr.query(
+        `SELECT fs.id, fs.stay_id AS "stayId",
+                s.name AS "stayName", s.image_url AS "stayImageUrl",
+                ROUND(AVG(sr.overall_rating)::numeric, 1)::float AS "avgRating"
+         FROM favorite_stays fs
+         JOIN stays s ON s.id = fs.stay_id
+         LEFT JOIN stay_ratings sr ON sr.stay_id = s.id AND sr.deleted_at IS NULL
+         WHERE fs.user_id = $1
+         GROUP BY fs.id, fs.stay_id, s.name, s.image_url`,
+        [userId],
+      ),
+      mgr.query(
+        `SELECT fa.id, fa.activity_id AS "activityId",
+                a.name AS "activityName", a.image_url AS "activityImageUrl",
+                ROUND(AVG(ar.overall_rating)::numeric, 1)::float AS "avgRating"
+         FROM favorite_activities fa
+         JOIN activities a ON a.id = fa.activity_id
+         LEFT JOIN activity_ratings ar ON ar.activity_id = a.id AND ar.deleted_at IS NULL
+         WHERE fa.user_id = $1
+         GROUP BY fa.id, fa.activity_id, a.name, a.image_url`,
+        [userId],
+      ),
     ]);
-    return { restaurants, stays, activities };
+
+    // 기존 응답 형태 유지 + avgRating 추가
+    return {
+      restaurants: restaurants.map((r: any) => ({
+        id: r.id,
+        restaurantId: r.restaurantId,
+        restaurant: { name: r.restaurantName, imageUrl: r.restaurantImageUrl },
+        avgRating: r.avgRating,
+      })),
+      stays: stays.map((s: any) => ({
+        id: s.id,
+        stayId: s.stayId,
+        stay: { name: s.stayName, imageUrl: s.stayImageUrl },
+        avgRating: s.avgRating,
+      })),
+      activities: activities.map((a: any) => ({
+        id: a.id,
+        activityId: a.activityId,
+        activity: { name: a.activityName, imageUrl: a.activityImageUrl },
+        avgRating: a.avgRating,
+      })),
+    };
   }
 
   async removeFavorite(userId: number, dto: FavoriteDto) {
