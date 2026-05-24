@@ -55,10 +55,14 @@ function buildSchedule(
   activities: ItemResult[],
   stay: ItemResult | null,
 ) {
+  // DB에 같은 이름의 중복 행이 있을 경우를 대비해 id 기준으로 중복 제거
+  const uniqueRestaurants = restaurants.filter(
+    (r, idx, arr) => arr.findIndex((x) => x.id === r.id) === idx,
+  );
   const orderedActivities = applyPeakEnd(activities, days);
   const schedule = Array.from({ length: days }, (_, i) => ({
     day: i + 1,
-    restaurants: restaurants.slice(i * 3, i * 3 + 3),
+    restaurants: uniqueRestaurants.slice(i * 3, i * 3 + 3),
     activity: orderedActivities[i] ?? null,
   }));
   return { days, stay, schedule };

@@ -269,7 +269,7 @@ export default function CourseRecommendationsPage() {
             .filter((spot) => spot.day === activeDay)
             .map((spot, i) => (
               <motion.div 
-                key={spot.name}
+                key={`${spot.itemId ?? spot.name}-${spot.day}-${spot.category}`}
                 initial={{ opacity: 0, x: -15 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.08 }}

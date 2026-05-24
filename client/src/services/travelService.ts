@@ -113,6 +113,21 @@ const PLACEHOLDER = {
 /** ItineraryResponse → CourseSpot[] 변환 (itemId 보존) */
 export function mapItinerary(data: ItineraryResponse): import('../types').CourseSpot[] {
   const spots: import('../types').CourseSpot[] = [];
+  // 중복 방지: 같은 식당 ID가 여러 일차에 걸쳐 들어오는 경우 한 번만 추가
+  const seenRestaurantIds = new Set<number>();
+
+  const addRestaurant = (r: ItineraryItem | undefined, day: number, desc: string) => {
+    if (!r || seenRestaurantIds.has(r.id)) return;
+    seenRestaurantIds.add(r.id);
+    spots.push({
+      itemId: r.id,
+      day, category: 'restaurant',
+      name: r.name,
+      rating: Math.round(r.score * 10) / 10,
+      image: r.imageUrl || PLACEHOLDER.restaurant,
+      desc, memo: '',
+    });
+  };
 
   // 2일 이상 여행에서만 숙소를 1일차 맨 처음에 1번 추가
   if (data.days >= 2 && data.stay) {
@@ -127,26 +142,8 @@ export function mapItinerary(data: ItineraryResponse): import('../types').Course
   }
 
   data.schedule.forEach(({ day, restaurants, activity }) => {
-    if (restaurants[0]) {
-      spots.push({
-        itemId: restaurants[0].id,
-        day, category: 'restaurant',
-        name: restaurants[0].name,
-        rating: Math.round(restaurants[0].score * 10) / 10,
-        image: restaurants[0].imageUrl || PLACEHOLDER.restaurant,
-        desc: '현지 인기 맛집', memo: '',
-      });
-    }
-    if (restaurants[1]) {
-      spots.push({
-        itemId: restaurants[1].id,
-        day, category: 'restaurant',
-        name: restaurants[1].name,
-        rating: Math.round(restaurants[1].score * 10) / 10,
-        image: restaurants[1].imageUrl || PLACEHOLDER.restaurant,
-        desc: '현지 인기 맛집', memo: '',
-      });
-    }
+    addRestaurant(restaurants[0], day, '현지 인기 맛집');
+    addRestaurant(restaurants[1], day, '현지 인기 맛집');
     if (activity) {
       spots.push({
         itemId: activity.id,
@@ -157,16 +154,7 @@ export function mapItinerary(data: ItineraryResponse): import('../types').Course
         desc: '이 지역 대표 액티비티', memo: '',
       });
     }
-    if (restaurants[2]) {
-      spots.push({
-        itemId: restaurants[2].id,
-        day, category: 'restaurant',
-        name: restaurants[2].name,
-        rating: Math.round(restaurants[2].score * 10) / 10,
-        image: restaurants[2].imageUrl || PLACEHOLDER.restaurant,
-        desc: '저녁 추천 맛집', memo: '',
-      });
-    }
+    addRestaurant(restaurants[2], day, '저녁 추천 맛집');
   });
 
   return spots;
