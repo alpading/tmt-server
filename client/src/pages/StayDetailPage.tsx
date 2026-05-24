@@ -96,17 +96,17 @@ export default function StayDetailPage() {
     loadData();
   }, []);
 
-  // DB 데이터로 어트리뷰트 동적 생성
-  const stayAttributes = placeData ? [
-    { key: 'parking',      label: '주차',           value: placeData.hasParking            ? '가능' : '불가'   },
-    { key: 'cooking',      label: '취사',           value: placeData.allowsCooking         ? '가능' : '불가'   },
-    { key: 'breakfast',    label: '조식',           value: placeData.hasBreakfast          ? '제공' : '미제공' },
-    { key: 'bbq',          label: '바베큐',         value: placeData.hasBbq                ? '가능' : '불가'   },
-    { key: 'wheelchair',   label: '휠체어 접근',     value: placeData.isWheelchairAccessible ? '가능' : '불가'  },
-    { key: 'pets',         label: '반려동물 동반',   value: placeData.allowsPets            ? '가능' : '불가'   },
-    { key: 'tv',           label: 'TV',             value: placeData.hasTv                 ? '구비' : '미구비' },
-    { key: 'bathtub',      label: '욕조',           value: placeData.hasBathtub            ? '구비' : '미구비' },
-  ] : [];
+  // DB 데이터로 어트리뷰트 동적 생성 (true인 항목만)
+  const stayAttributes = placeData ? ([
+    placeData.hasParking             && { key: 'parking',    label: '주차',           value: '가능' },
+    placeData.allowsCooking          && { key: 'cooking',    label: '취사',           value: '가능' },
+    placeData.hasBreakfast           && { key: 'breakfast',  label: '조식',           value: '제공' },
+    placeData.hasBbq                 && { key: 'bbq',        label: '바베큐',         value: '가능' },
+    placeData.isWheelchairAccessible && { key: 'wheelchair', label: '휠체어 접근',     value: '가능' },
+    placeData.allowsPets             && { key: 'pets',       label: '반려동물 동반',   value: '가능' },
+    placeData.hasTv                  && { key: 'tv',         label: 'TV',             value: '구비' },
+    placeData.hasBathtub             && { key: 'bathtub',    label: '욕조',           value: '구비' },
+  ].filter(Boolean) as import('../types').PlaceAttribute[]) : [];
 
   const toggleBookmark = async () => {
     if (!ITEM_ID) return;

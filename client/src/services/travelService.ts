@@ -333,6 +333,11 @@ export const travelService = {
     return data;
   },
 
+  /** PATCH /me/course/name — 저장된 코스 이름 변경 */
+  async updateCourseName(courseId: number, name: string): Promise<void> {
+    await apiClient.patch('/me/course/name', { courseId, name });
+  },
+
   /** DELETE /me/course — 코스 삭제 (courseId 기준) */
   async unsaveCourse(courseId: number): Promise<void> {
     await apiClient.delete('/me/course', { courseId });

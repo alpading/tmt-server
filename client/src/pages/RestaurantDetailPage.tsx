@@ -94,18 +94,18 @@ export default function RestaurantDetailPage() {
     loadDetailData();
   }, []);
 
-  // DB 데이터로 어트리뷰트 동적 생성
-  const restaurantAttributes = placeData ? [
-    { key: 'spicy_food',    label: '매운 음식',      value: placeData.hasSpicyFood    ? '취급' : '미취급' },
-    { key: 'single_seat',   label: '혼밥 전용 공간', value: placeData.hasSingleSeating ? '있음' : '없음'   },
-    { key: 'table_seat',    label: '입식',           value: placeData.hasTableSeating  ? '가능' : '불가'   },
-    { key: 'bar_table',     label: '바테이블',        value: placeData.hasBarTable      ? '있음' : '없음'   },
-    { key: 'baby_chair',    label: '유아용 의자',     value: placeData.hasBabyChair     ? '있음' : '없음'   },
-    { key: 'parking',       label: '주차',           value: placeData.hasParking       ? '가능' : '불가'   },
-    { key: 'pets',          label: '반려동물 동반',   value: placeData.allowsPets       ? '가능' : '불가'   },
-    { key: 'group_seat',    label: '단체석',         value: placeData.hasGroupSeating  ? '가능' : '불가'   },
-    { key: 'private_room',  label: '룸',             value: placeData.hasPrivateRoom   ? '있음' : '없음'   },
-  ] : [];
+  // DB 데이터로 어트리뷰트 동적 생성 (true인 항목만)
+  const restaurantAttributes = placeData ? ([
+    placeData.hasSpicyFood     && { key: 'spicy_food',   label: '매운 음식',      value: '취급' },
+    placeData.hasSingleSeating && { key: 'single_seat',  label: '혼밥 전용 공간', value: '있음' },
+    placeData.hasTableSeating  && { key: 'table_seat',   label: '입식',           value: '가능' },
+    placeData.hasBarTable      && { key: 'bar_table',    label: '바테이블',        value: '있음' },
+    placeData.hasBabyChair     && { key: 'baby_chair',   label: '유아용 의자',     value: '있음' },
+    placeData.hasParking       && { key: 'parking',      label: '주차',           value: '가능' },
+    placeData.allowsPets       && { key: 'pets',         label: '반려동물 동반',   value: '가능' },
+    placeData.hasGroupSeating  && { key: 'group_seat',   label: '단체석',         value: '가능' },
+    placeData.hasPrivateRoom   && { key: 'private_room', label: '룸',             value: '있음' },
+  ].filter(Boolean) as import('../types').PlaceAttribute[]) : [];
 
   const toggleBookmark = async () => {
     if (!ITEM_ID) return; // itemId 없으면 북마크 불가

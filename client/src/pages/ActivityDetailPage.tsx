@@ -87,27 +87,20 @@ export default function ActivityDetailPage() {
     loadData();
   }, []);
 
-  // boolean 플래그 → 카테고리 라벨 파생 (우선순위 순)
-  const activityCategoryLabel = placeData
-    ? placeData.isExhibition ? '전시/관람'
-    : placeData.isActive     ? '체험/레저'
-    : placeData.isCafe       ? '카페'
-    : placeData.isShopping   ? '쇼핑'
-    : '액티비티'
-    : null;
+  const activityCategoryLabel = placeData ? '활동' : null;
 
-  // DB 데이터로 어트리뷰트 동적 생성
-  const activityAttributes = placeData ? [
-    { key: 'parking',      label: '주차',           value: placeData.availableParking        ? '가능' : '불가'  },
-    { key: 'wheelchair',   label: '휠체어 접근',     value: placeData.isWheelchairAccessible  ? '가능' : '불가'  },
-    { key: 'pets',         label: '반려동물 동반',   value: placeData.allowsPets              ? '가능' : '불가'  },
-    { key: 'kids',         label: '어린이 이용',     value: placeData.isKidFriendly           ? '가능' : '불가'  },
-    { key: 'free',         label: '무료/유료',       value: placeData.isFree                  ? '무료' : '유료'  },
-    { key: 'cafe',         label: '카페',            value: placeData.isCafe                  ? '있음' : '없음'  },
-    { key: 'shopping',     label: '쇼핑',            value: placeData.isShopping              ? '가능' : '불가'  },
-    { key: 'active',       label: '체험형 활동',     value: placeData.isActive                ? '있음' : '없음'  },
-    { key: 'exhibition',   label: '전시/관람',       value: placeData.isExhibition            ? '있음' : '없음'  },
-  ] : [];
+  // DB 데이터로 어트리뷰트 동적 생성 (true인 항목만)
+  const activityAttributes = placeData ? ([
+    placeData.availableParking       && { key: 'parking',    label: '주차',           value: '가능' },
+    placeData.isWheelchairAccessible && { key: 'wheelchair', label: '휠체어 접근',     value: '가능' },
+    placeData.allowsPets             && { key: 'pets',       label: '반려동물 동반',   value: '가능' },
+    placeData.isKidFriendly          && { key: 'kids',       label: '어린이 이용',     value: '가능' },
+    placeData.isFree                 && { key: 'free',       label: '무료 입장',       value: '가능' },
+    placeData.isCafe                 && { key: 'cafe',       label: '카페',            value: '있음' },
+    placeData.isShopping             && { key: 'shopping',   label: '쇼핑',            value: '가능' },
+    placeData.isActive               && { key: 'active',     label: '체험형 활동',     value: '있음' },
+    placeData.isExhibition           && { key: 'exhibition', label: '전시/관람',       value: '있음' },
+  ].filter(Boolean) as import('../types').PlaceAttribute[]) : [];
 
   const toggleBookmark = async () => {
     if (!ITEM_ID) return;

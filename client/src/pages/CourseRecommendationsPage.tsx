@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Heart, Smile, User, Loader2, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Heart, Smile, User, Loader2, AlertCircle, Pencil, Check, X } from 'lucide-react';
 import { travelService, mapItinerary } from '../services/travelService';
 
 interface CourseSpot {
@@ -36,6 +36,8 @@ export default function CourseRecommendationsPage() {
   const [savedCourseId, setSavedCourseId] = useState<number | null>(null);
   const [loadingItinerary, setLoadingItinerary] = useState(true);
   const [itineraryError, setItineraryError] = useState(false);
+  const [editingName, setEditingName] = useState(false);
+  const [editNameValue, setEditNameValue] = useState('');
 
   useEffect(() => {
     // 저장된 코스 상세보기 모드
@@ -71,7 +73,7 @@ export default function CourseRecommendationsPage() {
     setThemeId(savedThemeId);
     setThemeName(savedThemeName);
     setSelectedDuration(savedDuration);
-    setCustomCourseName(`${region} ${savedThemeName} 코스`);
+    setCustomCourseName(`${district} ${savedThemeName} 코스`);
 
     // 실제 추천 API 호출
     async function loadItinerary() {
@@ -156,6 +158,20 @@ export default function CourseRecommendationsPage() {
       alert('여행 코스 저장이 취소되었습니다.');
     } catch (err) {
       console.error('[CourseRecommendationsPage] handleUnsaveCourse failed', err);
+    }
+  };
+
+  const handleRenameConfirm = async () => {
+    const trimmed = editNameValue.trim().slice(0, 30);
+    if (!trimmed || !savedCourseId) return;
+    try {
+      await travelService.updateCourseName(savedCourseId, trimmed);
+      setSavedCourseTitle(trimmed);
+      setCustomCourseName(trimmed);
+      setEditingName(false);
+    } catch (err) {
+      console.error('[CourseRecommendationsPage] 이름 변경 실패', err);
+      alert('이름 변경에 실패했습니다.');
     }
   };
 
@@ -246,6 +262,40 @@ export default function CourseRecommendationsPage() {
             </button>
           </div>
         </div>
+
+        {/* 저장된 코스 이름 표시 + 편집 */}
+        {isViewingSaved && (
+          <div className="mb-6 flex items-center gap-2">
+            {editingName ? (
+              <div className="flex items-center gap-2 flex-1">
+                <input
+                  autoFocus
+                  value={editNameValue}
+                  onChange={(e) => e.target.value.length <= 30 && setEditNameValue(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') handleRenameConfirm(); if (e.key === 'Escape') setEditingName(false); }}
+                  className="flex-1 px-3 py-1.5 border border-neutral-300 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-black"
+                  maxLength={30}
+                />
+                <button onClick={handleRenameConfirm} className="p-1.5 bg-black text-white rounded-full hover:bg-neutral-800 transition-colors cursor-pointer">
+                  <Check className="w-3.5 h-3.5" />
+                </button>
+                <button onClick={() => setEditingName(false)} className="p-1.5 bg-neutral-100 text-neutral-600 rounded-full hover:bg-neutral-200 transition-colors cursor-pointer">
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ) : (
+              <>
+                <span className="text-sm font-black text-neutral-700 truncate">{savedCourseTitle}</span>
+                <button
+                  onClick={() => { setEditNameValue(savedCourseTitle); setEditingName(true); }}
+                  className="p-1 rounded-full hover:bg-neutral-100 transition-colors text-neutral-400 hover:text-black cursor-pointer shrink-0"
+                >
+                  <Pencil className="w-3.5 h-3.5" />
+                </button>
+              </>
+            )}
+          </div>
+        )}
 
         {/* Day Select Tabs Bar */}
         {selectedDuration >= 1 && (
