@@ -20,6 +20,7 @@ export default function CourseRecommendationsPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const isViewingSaved = !!(location.state as any)?.savedItinerary;
+  const savedFrom: string = (location.state as any)?.from || '/saved-courses';
   const [selectedRegion, setSelectedRegion] = useState('제주도');
   const [selectedDistrict, setSelectedDistrict] = useState('서귀포시');
   const [themeName, setThemeName] = useState('스릴만점 액티비티 여행');
@@ -214,11 +215,14 @@ export default function CourseRecommendationsPage() {
         {/* Top Header Controls */}
         <div className="flex items-center justify-between mb-6 md:mb-4">
           <button
-            onClick={() => isViewingSaved ? navigate('/saved-courses') : navigate('/theme-selection')}
+            onClick={() => isViewingSaved ? navigate(savedFrom) : navigate('/theme-selection')}
             className="flex items-center gap-2 text-neutral-500 hover:text-black transition-colors font-bold text-xs md:text-sm cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>{isViewingSaved ? '저장된 코스로 돌아가기' : '테마 선택으로 가기'}</span>
+            <span>{isViewingSaved
+              ? savedFrom === '/mypage' ? '마이페이지로 돌아가기' : '저장된 코스로 돌아가기'
+              : '테마 선택으로 가기'
+            }</span>
           </button>
 
           <div className="flex items-center gap-2">
@@ -346,10 +350,12 @@ export default function CourseRecommendationsPage() {
         {/* Back and Confirm Button Box */}
         <div className="mt-12 text-center space-y-3">
           <button
-            onClick={() => navigate(isViewingSaved ? '/saved-courses' : '/main')}
+            onClick={() => navigate(isViewingSaved ? savedFrom : '/main')}
             className="w-full bg-black text-white py-4 rounded-full font-black tracking-tight text-base shadow-lg shadow-black/10 hover:bg-neutral-800 active:scale-95 transition-all text-center select-none cursor-pointer"
           >
-            {isViewingSaved ? '코스 목록으로 돌아가기 ✨' : '확인 및 홈으로 이동 ✨'}
+            {isViewingSaved
+              ? savedFrom === '/mypage' ? '마이페이지로 돌아가기 ✨' : '코스 목록으로 돌아가기 ✨'
+              : '확인 및 홈으로 이동 ✨'}
           </button>
           {!isViewingSaved && (
             <button

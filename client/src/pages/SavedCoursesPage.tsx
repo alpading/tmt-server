@@ -59,6 +59,7 @@ export default function SavedCoursesPage() {
           savedCourseName: courseTitle,
           savedCourseId: courseId,
           savedDuration: detail.duration,
+          from: '/saved-courses',
         },
       });
     } catch (err) {

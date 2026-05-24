@@ -3,7 +3,7 @@ import { motion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import { Search, User, Heart, Star, Home, Compass, Bookmark, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { travelService } from '../services/travelService';
+import { travelService, mapSavedCourse } from '../services/travelService';
 import { SavedCourse, SavedPlace } from '../types';
 
 export default function MyPage() {
@@ -14,6 +14,7 @@ export default function MyPage() {
   const [savedCourses, setSavedCourses] = useState<SavedCourse[]>([]);
   const [savedPlaces, setSavedPlaces] = useState<SavedPlace[]>([]);
   const [loading, setLoading] = useState(true);
+  const [viewingCourseId, setViewingCourseId] = useState<number | null>(null);
 
   // Fetch saved courses and saved places on mount
   useEffect(() => {
@@ -33,6 +34,29 @@ export default function MyPage() {
     }
     loadData();
   }, []);
+
+  const handleViewCourse = async (courseId: number | undefined, courseTitle: string) => {
+    if (!courseId) { alert('코스 정보를 불러올 수 없습니다.'); return; }
+    setViewingCourseId(courseId);
+    try {
+      const detail = await travelService.getSavedCourseDetail(courseId);
+      const spots = mapSavedCourse(detail);
+      navigate('/course-recommendations', {
+        state: {
+          savedItinerary: spots,
+          savedCourseName: courseTitle,
+          savedCourseId: courseId,
+          savedDuration: detail.duration,
+          from: '/mypage',
+        },
+      });
+    } catch (err) {
+      console.error('[MyPage] 코스 상세보기 실패', err);
+      alert('코스 정보를 불러오지 못했습니다.');
+    } finally {
+      setViewingCourseId(null);
+    }
+  };
 
   const filteredPlaces = activePlaceCategory === '전체'
     ? savedPlaces
@@ -125,42 +149,12 @@ export default function MyPage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {savedCourses.map((course, i) => (
-              <motion.div 
+              <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
-                onClick={() => {
-                  if (course.title.includes('코스')) {
-                    const regionAndTheme = course.title.replace(' 코스', '').split(' ');
-                    if (regionAndTheme.length >= 2) {
-                      localStorage.setItem('selectedRegion', regionAndTheme[0]);
-                      localStorage.setItem('selectedThemeName', regionAndTheme.slice(1).join(' '));
-                      if (course.title.includes('액티비티')) localStorage.setItem('selectedThemeId', '1');
-                      else if (course.title.includes('인스타')) localStorage.setItem('selectedThemeId', '2');
-                      else if (course.title.includes('식도락')) localStorage.setItem('selectedThemeId', '3');
-                      else localStorage.setItem('selectedThemeId', '4');
-                      localStorage.setItem('viewingSavedCourseTitle', course.title);
-                      navigate('/course-recommendations');
-                      return;
-                    }
-                  }
-                  if (course.title.includes('제주도')) {
-                    localStorage.setItem('selectedRegion', '제주도');
-                    localStorage.setItem('selectedThemeName', '로맨틱 커플 힐링 여행');
-                    localStorage.setItem('selectedThemeId', '4');
-                    localStorage.setItem('viewingSavedCourseTitle', course.title);
-                    navigate('/course-recommendations');
-                  } else if (course.title.includes('경주')) {
-                    localStorage.setItem('selectedRegion', '강원도');
-                    localStorage.setItem('selectedThemeName', '스릴만점 액티비티 여행');
-                    localStorage.setItem('selectedThemeId', '1');
-                    localStorage.setItem('viewingSavedCourseTitle', course.title);
-                    navigate('/course-recommendations');
-                  } else {
-                    navigate('/saved-courses');
-                  }
-                }}
+                onClick={() => handleViewCourse(course.id, course.title)}
                 className="group bg-white border border-neutral-100 rounded-2xl overflow-hidden shadow-soft-brutal transition-all hover:-translate-y-1 cursor-pointer flex flex-col justify-between"
               >
                 <div>
@@ -178,10 +172,14 @@ export default function MyPage() {
                   </div>
                 </div>
                 <div className="px-4 pb-4 pt-0">
-                  <button 
-                    className="px-4 py-1.5 bg-black text-white text-[10px] font-bold rounded-full hover:bg-neutral-800 active:scale-95 transition-all w-fit cursor-pointer"
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleViewCourse(course.id, course.title); }}
+                    disabled={viewingCourseId === course.id}
+                    className="px-4 py-1.5 bg-black text-white text-[10px] font-bold rounded-full hover:bg-neutral-800 active:scale-95 transition-all w-fit cursor-pointer disabled:opacity-60 flex items-center gap-1"
                   >
-                    상세보기
+                    {viewingCourseId === course.id
+                      ? <><Loader2 className="w-3 h-3 animate-spin" />불러오는 중...</>
+                      : '상세보기'}
                   </button>
                 </div>
               </motion.div>
