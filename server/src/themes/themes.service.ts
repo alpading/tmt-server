@@ -306,7 +306,7 @@ export class ThemesService {
   // Theme 6: 부모님과 함께하는 효도 여행
   private async theme6(districtId: number, days: number) {
     const extraJoin = 'LEFT JOIN users u ON u.id = rr.user_id';
-    const ageCond = "u.birth_date <= CURRENT_DATE - INTERVAL '50 years'";
+    const ageCond = "u.birth_date <= rr.created_at - INTERVAL '50 years'";
 
     const [restaurants, stays, activities] = await Promise.all([
       this.queryItems({
@@ -399,7 +399,7 @@ export class ThemesService {
   // Theme 13: 2,30대가 좋아한 MZ 여행
   private async theme13(districtId: number, days: number) {
     const extraJoin = 'LEFT JOIN users u ON u.id = rr.user_id';
-    const ageCond = "u.birth_date > CURRENT_DATE - INTERVAL '40 years'";
+    const ageCond = "u.birth_date > rr.created_at - INTERVAL '40 years'";
     const [restaurants, stays, activities] = await Promise.all([
       this.queryItems({ domain: 'restaurants', districtId, limit: days * 3, extraJoin, caseWhenCond: ageCond }),
       days > 1 ? this.queryItems({ domain: 'stays', districtId, limit: 1, extraJoin, caseWhenCond: ageCond }) : Promise.resolve([]),
