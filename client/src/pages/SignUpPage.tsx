@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { motion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Loader2 } from 'lucide-react';
@@ -45,29 +45,36 @@ export default function SignUpPage() {
     }
   };
 
-  const handleUserIdChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const idCheckTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleUserIdChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setUserId(val);
+
+    // 기존 타이머 취소
+    if (idCheckTimer.current) clearTimeout(idCheckTimer.current);
+
     if (val === '') {
       setUserIdError('');
-    } else {
-      const regExp = /^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{1,20}$/;
-      if (!regExp.test(val)) {
-        setUserIdError('아이디는 20자 이내 영문, 숫자, 특수문자만 입력 가능합니다.');
-      } else {
-        try {
-          const exists = await authService.checkIdExists(val);
-          if (exists) {
-            setUserIdError('해당 아이디는 이미 사용 중입니다.');
-          } else {
-            setUserIdError('');
-          }
-        } catch {
-          setUserIdError('');
-        }
-      }
+      return;
     }
-  };
+
+    const regExp = /^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{1,20}$/;
+    if (!regExp.test(val)) {
+      setUserIdError('아이디는 20자 이내 영문, 숫자, 특수문자만 입력 가능합니다.');
+      return;
+    }
+
+    // 600ms 후에만 API 호출 (debounce)
+    idCheckTimer.current = setTimeout(async () => {
+      try {
+        const exists = await authService.checkIdExists(val);
+        setUserIdError(exists ? '해당 아이디는 이미 사용 중입니다.' : '');
+      } catch {
+        setUserIdError('');
+      }
+    }, 600);
+  }, []);
 
   const validateBirthDateString = (val: string) => {
     if (val.length !== 8) return false;

@@ -131,17 +131,19 @@ export default function MainMapPage() {
       {/* Search Modal */}
       <AnimatePresence>
         {isSearchOpen && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-start justify-center pt-24 px-4 bg-black/40 backdrop-blur-sm transition-all"
+            transition={{ duration: 0.15 }}
+            className="fixed inset-0 z-[100] flex items-start justify-center pt-24 px-4 bg-black/40"
             onClick={() => setIsSearchOpen(false)}
           >
-            <motion.div 
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
+            <motion.div
+              initial={{ opacity: 0, y: -12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.18, ease: 'easeOut' }}
               className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
@@ -182,13 +184,15 @@ export default function MainMapPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/50 backdrop-blur-md transition-all"
+            transition={{ duration: 0.15 }}
+            className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/50"
             onClick={() => setSelectedProvince(null)}
           >
             <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 8 }}
+              transition={{ duration: 0.18, ease: 'easeOut' }}
               className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
