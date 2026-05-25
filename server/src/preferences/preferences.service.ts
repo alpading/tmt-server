@@ -2,33 +2,44 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PreferenceCategory } from './preference-category.entity';
-import { PreferenceQuestion } from './preference-question.entity';
+import { Preference } from './preference.entity';
 import { DomainEnum } from '../common/enums';
+
+const DOMAIN_SECTION: Record<string, { title: string; order: number }> = {
+  restaurant: { title: '식당 취향 질문',     order: 1 },
+  stay:       { title: '숙소 취향 질문',     order: 2 },
+  activity:   { title: '액티비티 취향 질문', order: 3 },
+};
 
 @Injectable()
 export class PreferencesService {
   constructor(
     @InjectRepository(PreferenceCategory)
     private readonly categoryRepo: Repository<PreferenceCategory>,
-    @InjectRepository(PreferenceQuestion)
-    private readonly questionRepo: Repository<PreferenceQuestion>,
+    @InjectRepository(Preference)
+    private readonly prefRepo: Repository<Preference>,
   ) {}
 
   async getQuestions() {
-    const rows = await this.questionRepo.find({
-      order: { sectionOrder: 'ASC', dispOrder: 'ASC' },
+    const rows = await this.prefRepo.find({
+      relations: { category: true },
+      order: { id: 'ASC' },
     });
 
-    // section별로 그룹핑
+    // domain별로 하나의 섹션으로 그룹핑
     const sectionMap = new Map<string, { sectionTitle: string; sectionOrder: number; questions: any[] }>();
     for (const r of rows) {
-      if (!sectionMap.has(r.sectionTitle)) {
-        sectionMap.set(r.sectionTitle, { sectionTitle: r.sectionTitle, sectionOrder: r.sectionOrder, questions: [] });
+      if (!r.questionText) continue; // 질문 없는 행 skip
+      const domain = r.category.domain as string;
+      const sec = DOMAIN_SECTION[domain];
+      if (!sec) continue;
+      if (!sectionMap.has(domain)) {
+        sectionMap.set(domain, { sectionTitle: sec.title, sectionOrder: sec.order, questions: [] });
       }
-      sectionMap.get(r.sectionTitle)!.questions.push({
+      sectionMap.get(domain)!.questions.push({
         id:      r.id,
         text:    r.questionText,
-        prefKey: r.prefKey,
+        prefKey: r.profileCol?.replace(/_([a-z])/g, (_, c) => c.toUpperCase()) ?? r.profileCol,
         options: [r.optionHigh, r.optionMid, r.optionLow],
       });
     }

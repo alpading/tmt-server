@@ -18,6 +18,18 @@ export class Preference {
   @Column({ name: 'snapshot_col', type: 'text', nullable: true })
   snapshotCol: string | null;
 
+  @Column({ name: 'question_text', type: 'text', nullable: true })
+  questionText: string | null;
+
+  @Column({ name: 'option_high', length: 40, nullable: true })
+  optionHigh: string | null;
+
+  @Column({ name: 'option_mid', length: 40, nullable: true })
+  optionMid: string | null;
+
+  @Column({ name: 'option_low', length: 40, nullable: true })
+  optionLow: string | null;
+
   @ManyToOne(() => PreferenceCategory, (cat) => cat.attributes)
   @JoinColumn({ name: 'preference_category_id' })
   category: PreferenceCategory;
