@@ -10,7 +10,7 @@ interface AuthContextType {
   register: (data: Omit<User, 'savedCoursesCount' | 'savedPlacesCount'> & { password?: string }) => Promise<User>;
   logout: () => Promise<void>;
   updateProfile: (data: Partial<User>) => Promise<User | null>;
-  updateTendency: (answers: Record<number, number>) => Promise<User | null>;
+  updateTendency: (answers: Record<number, number>, prefKeyMap?: Record<number, string>) => Promise<User | null>;
   clearError: () => void;
 }
 
@@ -111,12 +111,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const updateTendency = async (answers: Record<number, number>): Promise<User | null> => {
+  const updateTendency = async (answers: Record<number, number>, prefKeyMap?: Record<number, string>): Promise<User | null> => {
     if (!user) return null;
     try {
       setLoading(true);
       setError(null);
-      const updatedUser = await authService.updateTravelTendency(user.id, answers);
+      const updatedUser = await authService.updateTravelTendency(user.id, answers, prefKeyMap);
       setUser(updatedUser);
       return updatedUser;
     } catch (err: any) {

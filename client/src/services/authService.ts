@@ -2,6 +2,19 @@ import { User } from '../types';
 import { apiClient, tokenStore } from './apiClient';
 
 // ─── 서버 응답 타입 ────────────────────────────────────────────────────────────
+export interface PreferenceQuestion {
+  id: number;
+  text: string;
+  prefKey: string;
+  options: [string, string, string];
+}
+
+export interface PreferenceSection {
+  sectionTitle: string;
+  sectionOrder: number;
+  questions: PreferenceQuestion[];
+}
+
 interface LoginResponse {
   accessToken: string;
   refreshToken: string;
@@ -207,14 +220,25 @@ export const authService = {
     }
   },
 
+  /** GET /preferences/questions — 성향 질문 목록 (공개 API) */
+  async getPreferenceQuestions(): Promise<PreferenceSection[]> {
+    const res = await apiClient.get<PreferenceSection[]>('/preferences/questions');
+    return res.data;
+  },
+
   /**
    * PUT /me/preference  (성향 퀴즈 결과 저장)
-   * answers: { [questionId(1~18)]: optionIdx(0=강함, 1=보통, 2=약함) }
+   * answers: { [questionId]: optionIdx(0=강함, 1=보통, 2=약함) }
+   * prefKeyMap: { [questionId]: prefKey } — DB에서 받은 매핑
    * snap 변환: optionIdx 0→3, 1→2, 2→1
    */
-  async updateTravelTendency(_userId: string, answers: Record<number, number>): Promise<User> {
-    // 질문 ID → 서버 preference 키 매핑
-    const Q_TO_KEY: Record<number, string> = {
+  async updateTravelTendency(
+    _userId: string,
+    answers: Record<number, number>,
+    prefKeyMap?: Record<number, string>,
+  ): Promise<User> {
+    // prefKeyMap이 없으면 기존 하드코딩 fallback (하위 호환)
+    const Q_TO_KEY: Record<number, string> = prefKeyMap ?? {
       1:  'resOily',    2:  'resMild',    3:  'resStim',    4:  'resSpicy',
       5:  'resNoise',   6:  'resClean',   7:  'resInterior', 8: 'resService',
       9:  'stayView',   10: 'stayInterior', 11: 'staySpace', 12: 'stayNoise',

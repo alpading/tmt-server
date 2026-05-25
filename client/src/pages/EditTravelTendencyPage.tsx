@@ -3,70 +3,7 @@ import { motion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, CheckCircle2, TrendingUp, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { authService } from '../services/authService';
-
-interface Question {
-  id: number;
-  text: string;
-  options: string[];
-}
-
-interface Section {
-  title: string;
-  questions: Question[];
-}
-
-const SECTIONS: Section[] = [
-  {
-    title: '식당 취향 질문',
-    questions: [
-      { id: 1, text: '기름지고 느끼한 음식을 즐기나요?', options: ['매우 그렇다', '보통이다', '전혀 아니다'] },
-      { id: 2, text: '건강하고 담백한 음식을 즐기나요?', options: ['매우 그렇다', '보통이다', '전혀 아니다'] },
-      { id: 3, text: '달고 짠 맛이 강한 자극적인 음식을 즐기나요?', options: ['매우 그렇다', '보통이다', '전혀 아니다'] },
-      { id: 4, text: '매운 음식을 적극적으로 찾아 즐기시나요?', options: ['매우 그렇다', '보통이다', '전혀 아니다'] },
-      { id: 5, text: '식당이 시끄러우면 다른 곳을 선택할 정도로 중요한가요?', options: ['매우 중요하다', '보통이다', '전혀 중요하지않다'] },
-      { id: 6, text: '식당의 청결 상태가 기준에 미치지 않으면 방문을 포기할 정도로 중요한가요?', options: ['매우 중요하다', '보통이다', '전혀 중요하지않다'] },
-      { id: 7, text: '식당의 인테리어(분위기)가 마음에 들면, 다른 조건이 조금 아쉬워도 방문할 의향이 있나요?', options: ['매우 그렇다', '보통이다', '전혀 아니다'] },
-      { id: 8, text: '직원의 응대가 불친절하면, 음식이 좋아도 다른 식당을 선택하는 편인가요?', options: ['매우 그렇다', '보통이다', '전혀 아니다'] },
-    ]
-  },
-  {
-    title: '숙소 취향 질문',
-    questions: [
-      { id: 9, text: '숙소 주변 풍경(뷰)이 좋지 않으면, 다른 조건이 좋아도 선택을 피하는 편인가요?', options: ['매우 그렇다', '보통이다', '전혀 아니다'] },
-      { id: 10, text: '숙소의 인테리어(분위기)가 좋지 않으면, 다른 조건이 좋아도 선택을 피하는 편인가요?', options: ['매우 그렇다', '보통이다', '전혀 아니다'] },
-      { id: 11, text: '숙소 공간이 좁거나 답답하게 느껴지면, 다른 조건이 좋아도 선택을 피하는 편인가요?', options: ['매우 그렇다', '보통이다', '전혀 아니다'] },
-      { id: 12, text: '숙소의 방음이 좋지 않으면, 수면이나 휴식에 방해를 받을 정도로 중요한 요소인가요?', options: ['매우 중요하다', '보통이다', '전혀 중요하지않다'] },
-      { id: 13, text: '숙소의 청결 상태가 기준에 미치지 않으면, 다른 조건이 좋아도 선택을 피하는 편인가요?', options: ['매우 그렇다', '보통이다', '전혀 아니다'] },
-      { id: 14, text: '직원의 응대가 좋지 않으면, 다른 조건이 좋아도 선택을 피하는 편인가요?', options: ['매우 그렇다', '보통이다', '전혀 아니다'] },
-    ]
-  },
-  {
-    title: '액티비티 취향 질문',
-    questions: [
-      { id: 15, text: '여행을 할 때 미술관, 전시, 공연 등 문화/전시형 여행지가 필수인가요?', options: ['필요하다', '보통이다', '필요없다'] },
-      { id: 16, text: '여행을 할 때 바다, 산, 숲, 야경 명소 등 풍경 감상형 여행지가 필수인가요?', options: ['필요하다', '보통이다', '필요없다'] },
-      { id: 17, text: '여행을 할 때 카페, 산책, 스파 등 힐링/휴식형 여행지가 필수인가요?', options: ['필요하다', '보통이다', '필요없다'] },
-      { id: 18, text: '여행을 할 때 등산, 서핑, 스키, 놀이기구 등 활동형 여행지가 필수인가요?', options: ['필요하다', '보통이다', '필요없다'] },
-    ]
-  }
-];
-
-/** optionIdx(0/1/2) → 해당 질문의 옵션 텍스트로 변환 */
-function buildTextAnswers(
-  idxAnswers: Record<number, number>,
-): Record<number, string> {
-  const result: Record<number, string> = {};
-  for (const section of SECTIONS) {
-    for (const q of section.questions) {
-      const idx = idxAnswers[q.id];
-      if (idx !== undefined && q.options[idx] !== undefined) {
-        result[q.id] = q.options[idx];
-      }
-    }
-  }
-  return result;
-}
+import { authService, PreferenceSection } from '../services/authService';
 
 export default function EditTravelTendencyPage() {
   const navigate = useNavigate();
@@ -75,18 +12,35 @@ export default function EditTravelTendencyPage() {
   const [success, setSuccess] = useState(false);
   const [errorWord, setErrorWord] = useState('');
   const [loadingPref, setLoadingPref] = useState(true);
-
+  const [sections, setSections] = useState<PreferenceSection[]>([]);
   const [answers, setAnswers] = useState<Record<number, string>>({});
 
-  // 마운트 시 서버에서 기존 성향 불러오기
   useEffect(() => {
-    authService.getPreference().then((idxAnswers) => {
+    // 질문 목록 + 기존 성향 병렬 fetch
+    Promise.all([
+      authService.getPreferenceQuestions(),
+      authService.getPreference(),
+    ]).then(([fetchedSections, idxAnswers]) => {
+      setSections(fetchedSections);
+      // optionIdx → 옵션 텍스트로 변환
       if (idxAnswers && Object.keys(idxAnswers).length > 0) {
-        setAnswers(buildTextAnswers(idxAnswers));
+        const textAnswers: Record<number, string> = {};
+        for (const section of fetchedSections) {
+          for (const q of section.questions) {
+            const idx = idxAnswers[q.id];
+            if (idx !== undefined && q.options[idx] !== undefined) {
+              textAnswers[q.id] = q.options[idx];
+            }
+          }
+        }
+        setAnswers(textAnswers);
       }
-      setLoadingPref(false);
-    });
+    }).catch(() => {}).finally(() => setLoadingPref(false));
   }, []);
+
+  // prefKey 맵 빌드
+  const prefKeyMap: Record<number, string> = {};
+  sections.forEach(sec => sec.questions.forEach(q => { prefKeyMap[q.id] = q.prefKey; }));
 
   const handleOptionClick = (questionId: number, option: string) => {
     setAnswers(prev => ({ ...prev, [questionId]: option }));
@@ -96,21 +50,18 @@ export default function EditTravelTendencyPage() {
     setSaving(true);
     setErrorWord('');
     setSuccess(false);
-
     try {
-      // 텍스트 답변 → optionIdx(0/1/2) 변환 후 API 전달
+      // 텍스트 답변 → optionIdx(0/1/2) 변환
       const numericAnswers: Record<number, number> = {};
-      for (const section of SECTIONS) {
+      for (const section of sections) {
         for (const q of section.questions) {
           const idx = q.options.indexOf(answers[q.id]);
           if (idx !== -1) numericAnswers[q.id] = idx;
         }
       }
-      await updateTravelTendency(numericAnswers);
+      await updateTravelTendency(numericAnswers, prefKeyMap);
       setSuccess(true);
-      setTimeout(() => {
-        navigate('/mypage');
-      }, 1500);
+      setTimeout(() => navigate('/mypage'), 1500);
     } catch (err: any) {
       setErrorWord(err.message || '성향 정보를 저장하는 중 오류가 발생했습니다.');
     } finally {
@@ -142,7 +93,7 @@ export default function EditTravelTendencyPage() {
               </button>
               <div className="flex-1 max-w-sm px-4">
                 <div className="flex justify-center items-end mb-2">
-                  <span className="text-[12px] text-black font-bold bg-white/90 px-3 py-1 rounded-full shadow-sm">문항 1-18</span>
+                  <span className="text-[12px] text-black font-bold bg-white/90 px-3 py-1 rounded-full shadow-sm">총 {sections.reduce((s, sec) => s + sec.questions.length, 0)}문항</span>
                 </div>
                 <div className="h-2 w-full bg-black/10 rounded-full overflow-hidden backdrop-blur-sm border border-white/20">
                   <div className="h-full bg-black transition-all duration-500 rounded-full w-full"></div>
@@ -177,17 +128,18 @@ export default function EditTravelTendencyPage() {
 
             {/* Questions Sections */}
             {!loadingPref && <div className="space-y-16">
-              {SECTIONS.map((section, idx) => (
-                <div key={section.title} className={`pt-8 ${idx !== 0 ? 'border-t border-neutral-100' : ''}`}>
+              {sections.map((section, secIdx) => (
+                <div key={section.sectionTitle} className={`pt-8 ${secIdx !== 0 ? 'border-t border-neutral-100' : ''}`}>
                   <div className="flex items-center gap-3 mb-8">
                     <div className="w-1.5 h-8 bg-black rounded-full"></div>
-                    <h3 className="text-2xl font-black text-primary">{section.title}</h3>
+                    <h3 className="text-2xl font-black text-primary">{section.sectionTitle}</h3>
                   </div>
                   <div className="space-y-12">
-                    {section.questions.map((q) => (
+                    {section.questions.map((q, qIdx) => (
                       <div key={q.id} className="space-y-5">
                         <h2 className="text-xl font-bold flex gap-3 text-primary items-start">
-                          <span>{q.id}.</span> <span>{q.text}</span>
+                          <span>{sections.slice(0, secIdx).reduce((s, s2) => s + s2.questions.length, 0) + qIdx + 1}.</span>
+                          <span>{q.text}</span>
                         </h2>
                         <div className="grid grid-cols-1 gap-3">
                           {q.options.map((option) => {
@@ -197,8 +149,8 @@ export default function EditTravelTendencyPage() {
                                 key={option}
                                 onClick={() => handleOptionClick(q.id, option)}
                                 className={`w-full text-left px-6 py-4 rounded-full border-2 transition-all duration-200 flex justify-between items-center group ${
-                                  isSelected 
-                                    ? 'border-black bg-black text-white shadow-lg' 
+                                  isSelected
+                                    ? 'border-black bg-black text-white shadow-lg'
                                     : 'border-neutral-100 bg-neutral-50 hover:bg-white hover:border-neutral-300'
                                 }`}
                               >
