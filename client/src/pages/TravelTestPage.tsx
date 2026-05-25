@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, CheckCircle2, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -21,11 +20,25 @@ export default function TravelTestPage() {
       .finally(() => setLoadingQuestions(false));
   }, []);
 
-  const totalQuestions = sections.reduce((s, sec) => s + sec.questions.length, 0);
+  const totalQuestions = useMemo(
+    () => sections.reduce((s, sec) => s + sec.questions.length, 0),
+    [sections],
+  );
 
-  // prefKey 맵 빌드 (질문 id → prefKey)
-  const prefKeyMap: Record<number, string> = {};
-  sections.forEach(sec => sec.questions.forEach(q => { prefKeyMap[q.id] = q.prefKey; }));
+  // prefKey 맵 빌드 (질문 id → prefKey) — sections 바뀔 때만 재계산
+  const prefKeyMap = useMemo(() => {
+    const map: Record<number, string> = {};
+    sections.forEach(sec => sec.questions.forEach(q => { map[q.id] = q.prefKey; }));
+    return map;
+  }, [sections]);
+
+  // 각 섹션의 시작 질문 번호 오프셋 — sections 바뀔 때만 재계산
+  const sectionOffsets = useMemo(() => {
+    const offsets: number[] = [];
+    let acc = 0;
+    sections.forEach(sec => { offsets.push(acc); acc += sec.questions.length; });
+    return offsets;
+  }, [sections]);
 
   const handleOptionClick = (questionId: number, optionIdx: number) => {
     setAnswers(prev => ({ ...prev, [questionId]: optionIdx }));
@@ -54,7 +67,7 @@ export default function TravelTestPage() {
         <img alt="Beautiful tropical beach" 
           className="w-full h-full object-cover" 
           src="https://tmt-gyeongju.s3.ap-northeast-2.amazonaws.com/basic/background.png" referrerPolicy="no-referrer" />
-        <div className="absolute inset-0 bg-black/15 backdrop-blur-[2px]"></div>
+        <div className="absolute inset-0 bg-black/20"></div>
       </div>
 
       <div className="relative z-10 max-w-4xl mx-auto h-screen flex flex-col px-4">
@@ -80,14 +93,9 @@ export default function TravelTestPage() {
               </div>
               <div className="w-10 h-10 invisible"></div>
             </div>
-            <motion.div 
-              animate={{ y: [0, -5, 0] }}
-              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <img alt="떠먹트립 로고" 
-                className="w-16 h-16 md:w-20 md:h-20 object-contain mx-auto" 
+              <img alt="떠먹트립 로고"
+                className="w-16 h-16 md:w-20 md:h-20 object-contain mx-auto"
                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuDmBmFtxOuMxcNCgk0n24EUv046PekwC7l9lSJoUVfD7NUljHqpH4rheCbbUx3RzHcXqnSv3GBSuRcD42txCTiK-zAt19iloNphaUKXS2MDFi-XfcmDeDgfP-PXF5nYWy5gC6jtkTCP6U6_EjsbASwNbHKD7d17rBQLdruR8XvZ27qSDB5nTJfZ5gLmstCmcJWnQaCfGdAKiUNJGGTZ8Z9ABQdjP5hSlxT9QHor2m83JAf0suX8hjXMnm6dJZJaH4Nd_UC2qL5r9Q36" referrerPolicy="no-referrer" />
-            </motion.div>
           </div>
         </header>
 
@@ -115,7 +123,7 @@ export default function TravelTestPage() {
                       {section.questions.map((q, qIdx) => (
                         <div key={q.id} className="space-y-5">
                           <h2 className="text-xl font-bold flex gap-3 text-primary items-start">
-                            <span>{sections.slice(0, secIdx).reduce((s, s2) => s + s2.questions.length, 0) + qIdx + 1}.</span>
+                            <span>{sectionOffsets[secIdx] + qIdx + 1}.</span>
                             <span>{q.text}</span>
                           </h2>
                           <div className="grid grid-cols-1 gap-3">
