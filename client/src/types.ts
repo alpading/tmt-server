@@ -28,6 +28,7 @@ export interface SavedCourse {
   info: string;
   image: string;
   iconType: string;
+  themeName?: string; // 원본 테마 이름
 }
 
 export interface SavedPlace {
