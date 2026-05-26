@@ -21,6 +21,7 @@ export default function SavedCoursesPage() {
         const mapped = saved.map(item => ({
           id: item.id,
           title: item.title,
+          themeName: item.themeName || '',
           info: item.info || '2박 3일',
           image: item.image,
           iconType: item.iconType || 'tree',
@@ -53,12 +54,14 @@ export default function SavedCoursesPage() {
     try {
       const detail = await travelService.getSavedCourseDetail(courseId);
       const spots = mapSavedCourse(detail);
+      const course = courses.find(c => c.id === courseId);
       navigate('/course-recommendations', {
         state: {
           savedItinerary: spots,
           savedCourseName: courseTitle,
           savedCourseId: courseId,
           savedDuration: detail.duration,
+          savedThemeName: detail.themeName || course?.themeName || '',
           from: '/saved-courses',
         },
       });
@@ -170,6 +173,11 @@ export default function SavedCoursesPage() {
                     {renderIcon(course.iconType)}
                     <span>{course.info ? course.info.split('•')[0].trim() : ''}</span>
                   </div>
+                  {course.themeName && (
+                    <span className="inline-block px-2.5 py-0.5 mb-2 bg-black/5 text-neutral-500 text-[10px] font-bold rounded-full border border-neutral-200">
+                      🗺 {course.themeName}
+                    </span>
+                  )}
                   <h3 className="text-lg font-black mb-4 text-primary tracking-tight leading-snug">{course.title}</h3>
                   <button
                     onClick={() => handleViewCourse(course.id, course.title)}
