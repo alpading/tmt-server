@@ -8,12 +8,12 @@ interface FavActivityRow   { id: number; activityId: number;   activity:   { nam
 interface FavListResponse  { restaurants: FavRestaurantRow[]; stays: FavStayRow[]; activities: FavActivityRow[] }
 
 // ─── 서버 코스 응답 타입 ───────────────────────────────────────────────────────
-interface CourseListItem { id: number; themeId: number; name: string; duration: number; createdAt: string }
+interface CourseListItem { id: number; themeId: number; themeName: string; name: string; duration: number; createdAt: string }
 
 interface SavedCourseDetailItem { id: number; name: string; imageUrl: string; avgRating: number | null }
 interface SavedCourseScheduleSlot { day: number; restaurants: SavedCourseDetailItem[]; activity: SavedCourseDetailItem | null }
 export interface SavedCourseDetailResponse {
-  id: number; themeId: number; name: string; duration: number; createdAt: string;
+  id: number; themeId: number; themeName?: string; name: string; duration: number; createdAt: string;
   stay: SavedCourseDetailItem | null;
   schedule: SavedCourseScheduleSlot[];
 }
@@ -311,6 +311,7 @@ export const travelService = {
     return data.map((c) => ({
       id: c.id,
       title: c.name,
+      themeName: c.themeName,
       info: DURATION_LABEL[c.duration] ?? `${c.duration}일 코스`,
       image: PLACEHOLDER.activity,
       iconType: ICON_BY_THEME[c.themeId % 4] ?? 'clock',
