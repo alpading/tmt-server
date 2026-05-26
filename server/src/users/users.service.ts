@@ -208,11 +208,16 @@ export class UsersService {
   }
 
   async getCourseList(userId: number) {
-    const courses = await this.courseRepo.find({
-      where: { userId },
-      order: { createdAt: 'DESC' },
-    });
-    return courses.map(({ id, themeId, name, duration, createdAt }) => ({ id, themeId, name, duration, createdAt }));
+    const rows: Array<{ id: number; themeId: number; themeName: string; name: string; duration: number; createdAt: Date }> =
+      await this.courseRepo.manager.query(
+        `SELECT c.id, c.theme_id AS "themeId", COALESCE(t.name, '') AS "themeName", c.name, c.duration, c.created_at AS "createdAt"
+         FROM courses c
+         LEFT JOIN theme t ON t.id = c.theme_id
+         WHERE c.user_id = $1
+         ORDER BY c.created_at DESC`,
+        [userId],
+      );
+    return rows.map(({ id, themeId, themeName, name, duration, createdAt }) => ({ id, themeId, themeName, name, duration, createdAt }));
   }
 
   async getCourse(userId: number, courseId: number) {
@@ -266,7 +271,12 @@ export class UsersService {
     }
 
     const schedule = Array.from(dayMap.entries()).map(([day, slot]) => ({ day, ...slot }));
-    return { id: course.id, themeId: course.themeId, name: course.name, duration: course.duration, createdAt: course.createdAt, stay, schedule };
+    const themeRows = await this.courseRepo.manager.query(
+      `SELECT name FROM theme WHERE id = $1`,
+      [course.themeId],
+    );
+    const themeName: string = themeRows[0]?.name ?? '';
+    return { id: course.id, themeId: course.themeId, themeName, name: course.name, duration: course.duration, createdAt: course.createdAt, stay, schedule };
   }
 
   async updateCourseName(userId: number, dto: UpdateCourseNameDto) {
