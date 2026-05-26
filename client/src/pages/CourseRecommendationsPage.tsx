@@ -46,6 +46,7 @@ export default function CourseRecommendationsPage() {
       savedCourseName?: string;
       savedCourseId?: number;
       savedDuration?: number;
+      savedThemeName?: string;
     } | null;
 
     if (stateData?.savedItinerary) {
@@ -54,6 +55,7 @@ export default function CourseRecommendationsPage() {
       setSavedCourseTitle(stateData.savedCourseName ?? '');
       setCustomCourseName(stateData.savedCourseName ?? '');
       setSelectedDuration(stateData.savedDuration ?? 1);
+      setThemeName(stateData.savedThemeName ?? '');
       setActiveDay(1);
       setIsSaved(true);
       setLoadingItinerary(false);
@@ -263,9 +265,19 @@ export default function CourseRecommendationsPage() {
           </div>
         </div>
 
+        {/* 테마 배지 — 항상 표시 */}
+        {themeName && (
+          <div className="mb-4">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-black/5 border border-neutral-200 text-neutral-500 text-[11px] font-bold rounded-full">
+              🗺 {themeName}
+            </span>
+          </div>
+        )}
+
         {/* 저장된 코스 이름 표시 + 편집 */}
         {isViewingSaved && (
-          <div className="mb-6 flex items-center gap-2">
+          <div className="mb-6">
+          <div className="flex items-center gap-2">
             {editingName ? (
               <div className="flex items-center gap-2 flex-1">
                 <input
@@ -294,6 +306,7 @@ export default function CourseRecommendationsPage() {
                 </button>
               </>
             )}
+          </div>
           </div>
         )}
 
