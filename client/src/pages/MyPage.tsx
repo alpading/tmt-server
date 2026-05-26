@@ -41,12 +41,14 @@ export default function MyPage() {
     try {
       const detail = await travelService.getSavedCourseDetail(courseId);
       const spots = mapSavedCourse(detail);
+      const course = savedCourses.find(c => c.id === courseId);
       navigate('/course-recommendations', {
         state: {
           savedItinerary: spots,
           savedCourseName: courseTitle,
           savedCourseId: courseId,
           savedDuration: detail.duration,
+          savedThemeName: detail.themeName || course?.themeName || '',
           from: '/mypage',
         },
       });
@@ -167,6 +169,11 @@ export default function MyPage() {
                     </div>
                   </div>
                   <div className="p-4">
+                    {course.themeName && (
+                      <span className="inline-block px-2.5 py-0.5 mb-2 bg-black/5 text-neutral-500 text-[10px] font-bold rounded-full border border-neutral-200">
+                        🗺 {course.themeName}
+                      </span>
+                    )}
                     <h3 className="font-bold text-base md:text-md leading-tight mb-1 group-hover:text-primary transition-colors">{course.title}</h3>
                     <p className="text-xs text-secondary font-medium">{course.info ? course.info.split('•')[0].trim() : ''}</p>
                   </div>
