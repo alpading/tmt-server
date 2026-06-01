@@ -16,7 +16,6 @@ import {
 } from 'lucide-react';
 import { travelService } from '../services/travelService';
 import { reviewService } from '../services/reviewService';
-import { apiClient } from '../services/apiClient';
 import { ReviewAnalytics } from '../types';
 import MapSection from '../components/MapSection';
 import AttributeSection from '../components/AttributeSection';
@@ -58,8 +57,8 @@ export default function ActivityDetailPage() {
           reviewService.getReviewAnalytics(ITEM_ID, 'activity'),
         ];
         if (ITEM_ID) {
-          promises.push(apiClient.get<ActivityData>(`/activities/${ITEM_ID}`));
-          promises.push(apiClient.get<{ avgRating: number | null; count: number }>(`/stat/activity/${ITEM_ID}/overall`));
+          promises.push(travelService.getActivity<ActivityData>(ITEM_ID));
+          promises.push(travelService.getOverallStat('activity', ITEM_ID));
         }
         const [courses, savedPlaces, analytics, placeRes, statRes] = await Promise.all(promises);
         setIsSavedInCourse(courses.length > 0);
@@ -69,15 +68,15 @@ export default function ActivityDetailPage() {
             : savedPlaces.some(p => p.name === PLACE_NAME),
         );
         setReviewAnalytics(analytics);
-        if (placeRes?.data) {
-          setPlaceData(placeRes.data);
+        if (placeRes) {
+          setPlaceData(placeRes);
           setPlaceCoords({
-            lat: parseFloat(placeRes.data.latitude),
-            lng: parseFloat(placeRes.data.longitude),
-            naverPlaceId: placeRes.data.naverPlaceId ?? null,
+            lat: parseFloat(placeRes.latitude),
+            lng: parseFloat(placeRes.longitude),
+            naverPlaceId: placeRes.naverPlaceId ?? null,
           });
         }
-        if (statRes?.data?.avgRating != null) setAvgRating(statRes.data.avgRating);
+        if (statRes?.avgRating != null) setAvgRating(statRes.avgRating);
       } catch (err) {
         console.error('[ActivityDetailPage] failed to pre-fetch details', err);
       } finally {
