@@ -1,4 +1,4 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Search, User, Star, Map as MapIcon, Bookmark, Compass, Loader2, AlertCircle } from 'lucide-react';
@@ -16,11 +16,11 @@ export default function ActivityRecommendationsPage() {
   const location = useLocation();
   const state = (location.state || {}) as { prefAttrIds?: string; basicFilters?: string };
 
-  const [results, setResults] = React.useState<ActivityResult[]>([]);
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState<string | null>(null);
+  const [results, setResults] = useState<ActivityResult[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     async function load() {
       try {
         setLoading(true);

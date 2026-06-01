@@ -1,4 +1,3 @@
-import React from 'react';
 import { Star, Award, Compass, Smile, Sparkles, MessageSquare } from 'lucide-react';
 import { ReviewAnalytics } from '../types';
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { 
@@ -46,15 +46,15 @@ export default function RestaurantDetailPage() {
   const IMAGE      = navState.image  || '';
 
   // State
-  const [isSavedInCourse, setIsSavedInCourse] = React.useState(false);
-  const [isBookmarked, setIsBookmarked]         = React.useState(false);
-  const [reviewAnalytics, setReviewAnalytics]   = React.useState<ReviewAnalytics | null>(null);
-  const [loading, setLoading]                   = React.useState(true);
-  const [placeCoords, setPlaceCoords]           = React.useState<{ lat: number; lng: number; naverPlaceId: string | null } | null>(null);
-  const [placeData, setPlaceData]               = React.useState<RestaurantData | null>(null);
-  const [avgRating, setAvgRating]               = React.useState<number | null>(null);
+  const [isSavedInCourse, setIsSavedInCourse] = useState(false);
+  const [isBookmarked, setIsBookmarked]         = useState(false);
+  const [reviewAnalytics, setReviewAnalytics]   = useState<ReviewAnalytics | null>(null);
+  const [loading, setLoading]                   = useState(true);
+  const [placeCoords, setPlaceCoords]           = useState<{ lat: number; lng: number; naverPlaceId: string | null } | null>(null);
+  const [placeData, setPlaceData]               = useState<RestaurantData | null>(null);
+  const [avgRating, setAvgRating]               = useState<number | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     async function loadDetailData() {
       try {
         setLoading(true);

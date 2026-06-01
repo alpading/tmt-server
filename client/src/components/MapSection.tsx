@@ -1,4 +1,4 @@
-import React from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Loader2, MapPin, AlertCircle, ExternalLink } from 'lucide-react';
 import { loadNaverMapScript, createMap, addMarker } from '../services/mapService';
 
@@ -10,10 +10,10 @@ interface MapSectionProps {
 }
 
 export default function MapSection({ placeName, latitude, longitude, naverPlaceId }: MapSectionProps) {
-  const mapContainerRef = React.useRef<HTMLDivElement>(null);
-  const mapInstanceRef = React.useRef<any>(null);
-  const [loading, setLoading] = React.useState<boolean>(true);
-  const [isApiLoaded, setIsApiLoaded] = React.useState<boolean>(false);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<any>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [isApiLoaded, setIsApiLoaded] = useState<boolean>(false);
 
   // 유효한 좌표인지 체크 (0,0은 미설정 값)
   const hasValidCoords = latitude && longitude && !(latitude === 0 && longitude === 0);
@@ -24,7 +24,7 @@ export default function MapSection({ placeName, latitude, longitude, naverPlaceI
     : `https://map.naver.com/v5/search/${encodeURIComponent(placeName)}`;
 
   // 1. Naver Maps SDK 로드 + 지도 렌더링
-  React.useEffect(() => {
+  useEffect(() => {
     if (!hasValidCoords) {
       setLoading(false);
       return;
@@ -49,7 +49,7 @@ export default function MapSection({ placeName, latitude, longitude, naverPlaceI
   }, [latitude, longitude]);
 
   // 2. 지도 인스턴스 생성
-  React.useEffect(() => {
+  useEffect(() => {
     if (loading || !hasValidCoords || !isApiLoaded || !mapContainerRef.current) return;
     if (mapInstanceRef.current) return;
 
