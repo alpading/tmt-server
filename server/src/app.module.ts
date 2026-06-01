@@ -10,6 +10,7 @@ import { PreferencesModule } from './preferences/preferences.module';
 import { ThemesModule } from './themes/themes.module';
 import { StatModule } from './stat/stat.module';
 import { RegionsModule } from './regions/regions.module';
+import { CoursesModule } from './courses/courses.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { RegionsModule } from './regions/regions.module';
     ThemesModule,
     StatModule,
     RegionsModule,
+    CoursesModule,
   ],
 })
 export class AppModule {}
