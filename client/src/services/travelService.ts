@@ -18,16 +18,6 @@ export interface SavedCourseDetailResponse {
   schedule: SavedCourseScheduleSlot[];
 }
 
-export interface PlaceDetail {
-  name: string;
-  category: string;
-  location: string;
-  rating: string;
-  image: string;
-  description?: string;
-  features?: string[];
-}
-
 // ─── 지역 타입 ─────────────────────────────────────────────────────────────────
 
 /** 서버 GET /regions 응답 + 지도 오버레이 메타데이터를 합친 시/도 */
