@@ -51,7 +51,7 @@ export default function MainMapPage() {
       {/* Top Navigation */}
       <header className="bg-white/80 backdrop-blur-md font-sans tracking-tight sticky top-0 border-b border-neutral-100 shadow-sm z-50">
         <div className="flex justify-between items-center px-8 h-20 max-w-[1100px] mx-auto w-full">
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/login')}>
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/main')}>
             <img alt="Tteomeok Trip Logo" 
               className="object-contain h-14 w-14" 
               src="https://lh3.googleusercontent.com/aida-public/AB6AXuDmBmFtxOuMxcNCgk0n24EUv046PekwC7l9lSJoUVfD7NUljHqpH4rheCbbUx3RzHcXqnSv3GBSuRcD42txCTiK-zAt19iloNphaUKXS2MDFi-XfcmDeDgfP-PXF5nYWy5gC6jtkTCP6U6_EjsbASwNbHKD7d17rBQLdruR8XvZ27qSDB5nTJfZ5gLmstCmcJWnQaCfGdAKiUNJGGTZ8Z9ABQdjP5hSlxT9QHor2m83JAf0suX8hjXMnm6dJZJaH4Nd_UC2qL5r9Q36" referrerPolicy="no-referrer" />
