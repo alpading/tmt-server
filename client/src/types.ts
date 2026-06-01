@@ -41,15 +41,6 @@ export interface SavedPlace {
   image: string;
 }
 
-export interface Review {
-  id: string;
-  author: string;
-  rating: number;
-  date: string;
-  content: string;
-  image?: string;
-}
-
 export interface Region {
   name: string;
   top: string;
