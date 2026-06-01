@@ -122,6 +122,12 @@ export default function MyPage() {
                   <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">저장된 장소</span>
                 </div>
               </div>
+              <button
+                onClick={handleLogout}
+                className="text-xs font-bold text-neutral-400 border-b border-neutral-300 pb-0.5 hover:text-neutral-600 transition-colors cursor-pointer mt-3"
+              >
+                로그아웃
+              </button>
             </div>
           </div>
           <div className="mt-6 md:mt-0 flex flex-col gap-2 w-full md:w-auto">
@@ -279,14 +285,6 @@ export default function MyPage() {
           </div>
         </section>
 
-        <div className="flex justify-center mt-4 mb-2">
-          <button
-            onClick={handleLogout}
-            className="text-xs font-bold text-neutral-400 border-b border-neutral-300 pb-0.5 hover:text-neutral-600 transition-colors cursor-pointer"
-          >
-            로그아웃
-          </button>
-        </div>
       </main>
 
       {/* Bottom Navigation for Mobile */}
