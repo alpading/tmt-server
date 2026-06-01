@@ -11,7 +11,7 @@ import {
   Heart,
   Bookmark
 } from 'lucide-react';
-import { apiClient } from '../services/apiClient';
+import { reviewService } from '../services/reviewService';
 
 interface LocationState {
   type?: 'restaurant' | 'stay' | 'activity';
@@ -257,26 +257,26 @@ export default function WriteReviewPage() {
     setSubmitStatus('loading');
     try {
       if (type === 'restaurant') {
-        await apiClient.post('/restaurants/rating', {
-          restaurantId:    itemId,
+        await reviewService.submitRating('restaurant', {
+          restaurantId:     itemId,
           overallRating,
-          tasteRating:     foodRating,
-          spaceRating:     serviceRating,
-          visitPartySize:  Number(visitorCount) || 1,
+          tasteRating:      foodRating,
+          spaceRating:      serviceRating,
+          visitPartySize:   Number(visitorCount) || 1,
           totalSpentAmount: Number(totalSpent.replace(/,/g, '')) || 0,
         });
       } else if (type === 'stay') {
-        await apiClient.post('/stays/rating', {
-          stayId:          itemId,
+        await reviewService.submitRating('stay', {
+          stayId:           itemId,
           overallRating,
-          interiorRating:  foodRating,
-          cleanRating:     serviceRating,
-          visitPartySize:  Number(visitorCount) || 1,
+          interiorRating:   foodRating,
+          cleanRating:      serviceRating,
+          visitPartySize:   Number(visitorCount) || 1,
           totalSpentAmount: Number(totalSpent.replace(/,/g, '')) || 0,
         });
       } else {
-        await apiClient.post('/activities/rating', {
-          activityId:   itemId,
+        await reviewService.submitRating('activity', {
+          activityId: itemId,
           overallRating,
         });
       }
