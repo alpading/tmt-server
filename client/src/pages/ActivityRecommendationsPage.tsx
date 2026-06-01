@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Search, User, Star, Map as MapIcon, Bookmark, Compass, Loader2, AlertCircle } from 'lucide-react';
-import { apiClient } from '../services/apiClient';
+import { travelService } from '../services/travelService';
 
 interface ActivityResult {
   id: number;
@@ -24,15 +24,12 @@ export default function ActivityRecommendationsPage() {
     async function load() {
       try {
         setLoading(true);
-        const districtId = localStorage.getItem('selectedDistrictId') || '189';
-        const params = new URLSearchParams();
-        if (state.basicFilters) params.set('basicFilters', state.basicFilters);
-        if (state.prefAttrIds) params.set('prefAttrIds', state.prefAttrIds);
-        const query = params.toString() ? `?${params.toString()}` : '';
-        const res = await apiClient.get<{ results: ActivityResult[] }>(
-          `/activities/search/district/${districtId}${query}`
-        );
-        setResults(res.data?.results ?? []);
+        const districtId = Number(localStorage.getItem('selectedDistrictId') || '189');
+        const data = await travelService.searchActivities(districtId, {
+          basicFilters: state.basicFilters,
+          prefAttrIds: state.prefAttrIds,
+        });
+        setResults(data);
       } catch (err) {
         console.error('[ActivityRecommendationsPage] fetch error', err);
         setError('액티비티 정보를 불러오는 데 실패했습니다.');
