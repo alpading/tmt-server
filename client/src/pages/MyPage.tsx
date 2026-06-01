@@ -8,7 +8,12 @@ import { SavedCourse, SavedPlace } from '../types';
 
 export default function MyPage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
   const [activePlaceCategory, setActivePlaceCategory] = useState('전체');
 
   const [savedCourses, setSavedCourses] = useState<SavedCourse[]>([]);
@@ -126,11 +131,17 @@ export default function MyPage() {
             >
               프로필 수정
             </button>
-            <button 
+            <button
               onClick={() => navigate('/edit-travel-tendency')}
               className="px-6 py-2 bg-black text-white font-bold text-sm rounded-full hover:bg-neutral-800 active:scale-95 transition-all w-full md:w-auto cursor-pointer"
             >
               여행 성향 수정
+            </button>
+            <button
+              onClick={handleLogout}
+              className="text-xs font-bold text-neutral-400 border-b border-neutral-300 pb-0.5 hover:text-neutral-600 transition-colors cursor-pointer self-center mt-1"
+            >
+              로그아웃
             </button>
           </div>
         </motion.section>
