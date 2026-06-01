@@ -137,12 +137,6 @@ export default function MyPage() {
             >
               여행 성향 수정
             </button>
-            <button
-              onClick={handleLogout}
-              className="text-xs font-bold text-neutral-400 border-b border-neutral-300 pb-0.5 hover:text-neutral-600 transition-colors cursor-pointer self-center mt-1"
-            >
-              로그아웃
-            </button>
           </div>
         </motion.section>
 
@@ -284,6 +278,15 @@ export default function MyPage() {
             ))}
           </div>
         </section>
+
+        <div className="flex justify-center mt-4 mb-2">
+          <button
+            onClick={handleLogout}
+            className="text-xs font-bold text-neutral-400 border-b border-neutral-300 pb-0.5 hover:text-neutral-600 transition-colors cursor-pointer"
+          >
+            로그아웃
+          </button>
+        </div>
       </main>
 
       {/* Bottom Navigation for Mobile */}
