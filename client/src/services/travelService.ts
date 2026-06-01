@@ -344,6 +344,37 @@ export const travelService = {
     await apiClient.delete('/me/course', { courseId });
   },
 
+  // ─── 장소 상세 / 통계 ────────────────────────────────────────────────────────
+
+  /** GET /api/activities/:id */
+  async getActivity<T>(id: number): Promise<T> {
+    const { data } = await apiClient.get<T>(`/activities/${id}`);
+    return data;
+  },
+
+  /** GET /api/restaurants/:id */
+  async getRestaurant<T>(id: number): Promise<T> {
+    const { data } = await apiClient.get<T>(`/restaurants/${id}`);
+    return data;
+  },
+
+  /** GET /api/stays/:id */
+  async getStay<T>(id: number): Promise<T> {
+    const { data } = await apiClient.get<T>(`/stays/${id}`);
+    return data;
+  },
+
+  /** GET /api/stat/:domain/:id/overall */
+  async getOverallStat(
+    domain: 'activity' | 'restaurant' | 'stay',
+    id: number,
+  ): Promise<{ avgRating: number | null; count: number }> {
+    const { data } = await apiClient.get<{ avgRating: number | null; count: number }>(
+      `/stat/${domain}/${id}/overall`,
+    );
+    return data;
+  },
+
   // ─── 개별 카테고리 검색 ──────────────────────────────────────────────────────
 
   /** GET /api/activities/search/district/:districtId */
