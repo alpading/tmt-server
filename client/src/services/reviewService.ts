@@ -1,5 +1,5 @@
 import { apiClient } from './apiClient';
-import { Review, ReviewAnalytics } from '../types';
+import { ReviewAnalytics } from '../types';
 
 export const reviewService = {
   /** POST /api/:domain/rating */
@@ -12,86 +12,6 @@ export const reviewService = {
       type === 'stay'       ? '/stays/rating' :
                               '/activities/rating';
     await apiClient.post(endpoint, payload);
-  },
-
-  /**
-   * Submit a new review
-   * Real API Note: Replace with POST '/api/reviews'
-   */
-  async submitReview(reviewData: {
-    placeName: string;
-    type: 'restaurant' | 'stay' | 'activity' | 'cafe';
-    overallRating: number;
-    subRating1: number; // Food / Atmosphere
-    subRating2: number; // Service
-    content: string;
-    authorName?: string;
-  }): Promise<Review> {
-    console.log('[reviewService] submitting review', reviewData);
-    
-    await apiClient.post('/reviews', reviewData);
-
-    const newReview: Review = {
-      id: Math.random().toString(36).substring(7),
-      author: reviewData.authorName || '홍길동',
-      rating: reviewData.overallRating,
-      date: new Date().toISOString().split('T')[0],
-      content: reviewData.content,
-    };
-
-    // Storing locally in user history
-    const stored = localStorage.getItem('user_written_reviews');
-    let list = [];
-    if (stored) {
-      try {
-        list = JSON.parse(stored);
-      } catch {
-        list = [];
-      }
-    }
-    list.unshift({ ...newReview, placeName: reviewData.placeName });
-    localStorage.setItem('user_written_reviews', JSON.stringify(list));
-
-    return newReview;
-  },
-
-  /**
-   * Get reviews for a particular place
-   * Real API Note: Replace with GET '/api/reviews?placeName=X'
-   */
-  async getReviews(placeName: string): Promise<Review[]> {
-    await apiClient.get(`/reviews?placeName=${placeName}`);
-
-    const baseReviews: Review[] = [
-      {
-        id: '1',
-        author: '김민준',
-        rating: 5.0,
-        content: '인생 최고의 경험이었습니다! 직원분들도 모두 너무 친절하셨고, 공간 인테리어 하나하나 대접받는 행복감이 가득했습니다. 강추합니다!',
-        date: '2026.04.12',
-      },
-      {
-        id: '2',
-        author: '이지은',
-        rating: 4.5,
-        content: '분위기가 정말 좋습니다. 아쉬운 점은 웨이팅이 조금 길고 주차가 복잡하다는 점이지만, 음식 퀄리티와 맛을 보면 모든 것이 다 용서되는 수준이네요.',
-        date: '2026.04.05',
-      },
-    ];
-
-    // Read matching local reviews
-    const stored = localStorage.getItem('user_written_reviews');
-    if (stored) {
-      try {
-        const list = JSON.parse(stored);
-        const filtered = list.filter((r: any) => r.placeName === placeName);
-        return [...filtered, ...baseReviews];
-      } catch {
-        return baseReviews;
-      }
-    }
-
-    return baseReviews;
   },
 
   /**
