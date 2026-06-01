@@ -2,6 +2,18 @@ import { apiClient } from './apiClient';
 import { Review, ReviewAnalytics } from '../types';
 
 export const reviewService = {
+  /** POST /api/:domain/rating */
+  async submitRating(
+    type: 'restaurant' | 'stay' | 'activity',
+    payload: Record<string, unknown>,
+  ): Promise<void> {
+    const endpoint =
+      type === 'restaurant' ? '/restaurants/rating' :
+      type === 'stay'       ? '/stays/rating' :
+                              '/activities/rating';
+    await apiClient.post(endpoint, payload);
+  },
+
   /**
    * Submit a new review
    * Real API Note: Replace with POST '/api/reviews'
