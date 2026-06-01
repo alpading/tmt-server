@@ -5,6 +5,7 @@
   "main": "dist/main.js",
   "scripts": {
     "dev": "nodemon",
+    "prebuild": "rm -rf dist",
     "build": "nest build",
     "start": "node dist/main",
     "lint": "eslint src/",
