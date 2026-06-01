@@ -25,6 +25,7 @@ import WriteReviewPage from './pages/WriteReviewPage';
 import ThemeSelectionPage from './pages/ThemeSelectionPage';
 import CourseRecommendationsPage from './pages/CourseRecommendationsPage';
 import { AuthProvider } from './context/AuthContext';
+import PrivateRoute from './components/PrivateRoute';
 
 export default function App() {
   return (
@@ -35,28 +36,28 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/travel-test" element={<TravelTestPage />} />
-          <Route path="/main" element={<MainMapPage />} />
-          <Route path="/recommendation-style" element={<RecommendationStylePage />} />
-          <Route path="/category-selection" element={<CategorySelectionPage />} />
-          <Route path="/theme-selection" element={<ThemeSelectionPage />} />
-          <Route path="/course-recommendations" element={<CourseRecommendationsPage />} />
-          <Route path="/restaurant-preference" element={<RestaurantPreferencePage />} />
-          <Route path="/restaurant-detail-preference" element={<RestaurantDetailPreferencePage />} />
-          <Route path="/restaurant-recommendations" element={<RestaurantRecommendationsPage />} />
-          <Route path="/stay-preference" element={<StayPreferencePage />} />
-          <Route path="/stay-detail-preference" element={<StayDetailPreferencePage />} />
-          <Route path="/activity-preference" element={<ActivityPreferencePage />} />
-          <Route path="/activity-recommendations" element={<ActivityRecommendationsPage />} />
-          <Route path="/stay-recommendations" element={<StayRecommendationsPage />} />
-          <Route path="/restaurant-detail" element={<RestaurantDetailPage />} />
-          <Route path="/stay-detail" element={<StayDetailPage />} />
-          <Route path="/activity-detail" element={<ActivityDetailPage />} />
-          <Route path="/write-review" element={<WriteReviewPage />} />
-          <Route path="/mypage" element={<MyPage />} />
-          <Route path="/saved-courses" element={<SavedCoursesPage />} />
-          <Route path="/saved-places" element={<SavedPlacesPage />} />
-          <Route path="/edit-profile" element={<EditProfilePage />} />
-          <Route path="/edit-travel-tendency" element={<EditTravelTendencyPage />} />
+          <Route path="/main" element={<PrivateRoute><MainMapPage /></PrivateRoute>} />
+          <Route path="/recommendation-style" element={<PrivateRoute><RecommendationStylePage /></PrivateRoute>} />
+          <Route path="/category-selection" element={<PrivateRoute><CategorySelectionPage /></PrivateRoute>} />
+          <Route path="/theme-selection" element={<PrivateRoute><ThemeSelectionPage /></PrivateRoute>} />
+          <Route path="/course-recommendations" element={<PrivateRoute><CourseRecommendationsPage /></PrivateRoute>} />
+          <Route path="/restaurant-preference" element={<PrivateRoute><RestaurantPreferencePage /></PrivateRoute>} />
+          <Route path="/restaurant-detail-preference" element={<PrivateRoute><RestaurantDetailPreferencePage /></PrivateRoute>} />
+          <Route path="/restaurant-recommendations" element={<PrivateRoute><RestaurantRecommendationsPage /></PrivateRoute>} />
+          <Route path="/stay-preference" element={<PrivateRoute><StayPreferencePage /></PrivateRoute>} />
+          <Route path="/stay-detail-preference" element={<PrivateRoute><StayDetailPreferencePage /></PrivateRoute>} />
+          <Route path="/activity-preference" element={<PrivateRoute><ActivityPreferencePage /></PrivateRoute>} />
+          <Route path="/activity-recommendations" element={<PrivateRoute><ActivityRecommendationsPage /></PrivateRoute>} />
+          <Route path="/stay-recommendations" element={<PrivateRoute><StayRecommendationsPage /></PrivateRoute>} />
+          <Route path="/restaurant-detail" element={<PrivateRoute><RestaurantDetailPage /></PrivateRoute>} />
+          <Route path="/stay-detail" element={<PrivateRoute><StayDetailPage /></PrivateRoute>} />
+          <Route path="/activity-detail" element={<PrivateRoute><ActivityDetailPage /></PrivateRoute>} />
+          <Route path="/write-review" element={<PrivateRoute><WriteReviewPage /></PrivateRoute>} />
+          <Route path="/mypage" element={<PrivateRoute><MyPage /></PrivateRoute>} />
+          <Route path="/saved-courses" element={<PrivateRoute><SavedCoursesPage /></PrivateRoute>} />
+          <Route path="/saved-places" element={<PrivateRoute><SavedPlacesPage /></PrivateRoute>} />
+          <Route path="/edit-profile" element={<PrivateRoute><EditProfilePage /></PrivateRoute>} />
+          <Route path="/edit-travel-tendency" element={<PrivateRoute><EditTravelTendencyPage /></PrivateRoute>} />
         </Routes>
       </Router>
     </AuthProvider>
