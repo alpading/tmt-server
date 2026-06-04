@@ -11,7 +11,7 @@ import { CreateActivityRatingDto } from './dto/create-activity-rating.dto';
 import { SearchActivityDto } from './dto/search-activity.dto';
 
 const ACTIVITY_BASIC_FILTERS = [
-  { key: 'availableParking',       label: '주차' },
+  { key: 'hasParking',              label: '주차' },
   { key: 'isKidFriendly',          label: '아이와 함께' },
   { key: 'isShopping',             label: '쇼핑' },
   { key: 'isCafe',                 label: '카페, 디저트' },
@@ -21,7 +21,7 @@ const ACTIVITY_BASIC_FILTERS = [
 ] as const;
 
 const ACTIVITY_BASIC_COL_MAP: Record<string, string> = {
-  availableParking:       'available_parking',
+  hasParking:             'has_parking',
   isKidFriendly:          'is_kid_friendly',
   isShopping:             'is_shopping',
   isCafe:                 'is_cafe',
@@ -76,7 +76,7 @@ export class ActivitiesService {
         .slice(0, 2);
     }
 
-    const conditions: string[] = ['a.destination_id = $1', 'a.deleted_at IS NULL'];
+    const conditions: string[] = ['a.district_id = $1', 'a.deleted_at IS NULL'];
     const params: (number | string)[] = [districtId];
 
     for (const key of basicFilterKeys) {
@@ -142,7 +142,7 @@ export class ActivitiesService {
           `SELECT ROUND(AVG(rr.${attr.targetCol})::NUMERIC, 2)::float AS avg
            FROM activity_ratings rr
            JOIN activities a ON a.id = rr.activity_id AND a.deleted_at IS NULL
-           WHERE rr.deleted_at IS NULL AND rr.${attr.snapshotCol} ${snapCond} AND a.destination_id = $1`,
+           WHERE rr.deleted_at IS NULL AND rr.${attr.snapshotCol} ${snapCond} AND a.district_id = $1`,
           [districtId],
         );
         return {

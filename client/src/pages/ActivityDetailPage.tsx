@@ -23,7 +23,7 @@ import ReviewAnalyticsSection from '../components/ReviewAnalyticsSection';
 
 interface ActivityData {
   id: number; name: string; imageUrl: string;
-  availableParking: boolean; isWheelchairAccessible: boolean; allowsPets: boolean;
+  hasParking: boolean; isWheelchairAccessible: boolean; allowsPets: boolean;
   isKidFriendly: boolean; isFree: boolean; isCafe: boolean;
   isShopping: boolean; isActive: boolean; isExhibition: boolean;
   latitude: string; longitude: string; naverPlaceId: string | null;
@@ -90,7 +90,7 @@ export default function ActivityDetailPage() {
 
   // DB 데이터로 어트리뷰트 동적 생성 (true인 항목만)
   const activityAttributes = placeData ? ([
-    placeData.availableParking       && { key: 'parking',    label: '주차',           value: '가능' },
+    placeData.hasParking              && { key: 'parking',    label: '주차',           value: '가능' },
     placeData.isWheelchairAccessible && { key: 'wheelchair', label: '휠체어 접근',     value: '가능' },
     placeData.allowsPets             && { key: 'pets',       label: '반려동물 동반',   value: '가능' },
     placeData.isKidFriendly          && { key: 'kids',       label: '어린이 이용',     value: '가능' },

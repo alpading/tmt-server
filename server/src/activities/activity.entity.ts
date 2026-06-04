@@ -11,14 +11,14 @@ export class Activity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'destination_id' })
-  destinationId: number;
+  @Column({ name: 'district_id' })
+  districtId: number;
 
   @Column({ length: 100 })
   name: string;
 
-  @Column({ name: 'available_parking', default: false })
-  availableParking: boolean;
+  @Column({ name: 'has_parking', default: false })
+  hasParking: boolean;
 
   @Column({ name: 'is_wheelchair_accessible', default: false })
   isWheelchairAccessible: boolean;

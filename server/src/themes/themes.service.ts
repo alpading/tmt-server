@@ -27,7 +27,7 @@ interface DomainConfig {
 const DC: Record<Domain, DomainConfig> = {
   restaurants: { table: 'restaurants', ratingTable: 'restaurant_ratings', fkCol: 'restaurant_id', districtCol: 'district_id' },
   stays:       { table: 'stays',       ratingTable: 'stay_ratings',       fkCol: 'stay_id',        districtCol: 'district_id' },
-  activities:  { table: 'activities',  ratingTable: 'activity_ratings',   fkCol: 'activity_id',    districtCol: 'destination_id' },
+  activities:  { table: 'activities',  ratingTable: 'activity_ratings',   fkCol: 'activity_id',    districtCol: 'district_id' },
 };
 
 interface QueryOptions {

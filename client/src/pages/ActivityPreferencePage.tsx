@@ -30,7 +30,7 @@ export default function ActivityPreferencePage() {
     '레저/액티비티형': 18,
   };
   const FILTER_KEY_MAP: Record<string, string> = {
-    '주차 공간': 'availableParking',
+    '주차 공간': 'hasParking',
     '아이와 함께': 'isKidFriendly',
     '쇼핑': 'isShopping',
     '휠체어 접근 가능': 'isWheelchairAccessible',

@@ -3,7 +3,7 @@ import { IsBoolean, IsInt, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsStrin
 export class CreateActivityDto {
   @IsInt()
   @IsPositive()
-  destinationId: number;
+  districtId: number;
 
   @IsString()
   @IsNotEmpty()
@@ -11,7 +11,7 @@ export class CreateActivityDto {
 
   @IsBoolean()
   @IsOptional()
-  availableParking?: boolean;
+  hasParking?: boolean;
 
   @IsBoolean()
   @IsOptional()
