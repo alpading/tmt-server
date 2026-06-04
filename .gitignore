@@ -27,3 +27,5 @@ npm-debug.log*
 
 image/
 *.pem
+
+.understand-anything/
