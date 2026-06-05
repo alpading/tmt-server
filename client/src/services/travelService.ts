@@ -2,9 +2,9 @@ import { apiClient } from './apiClient';
 import { CourseSpot, SavedCourse, SavedPlace } from '../types';
 
 // ─── 서버 즐겨찾기 응답 타입 ───────────────────────────────────────────────────
-interface FavRestaurantRow { id: number; restaurantId: number; restaurant: { name: string; imageUrl: string }; avgRating: number | null }
-interface FavStayRow       { id: number; stayId: number;       stay:       { name: string; imageUrl: string }; avgRating: number | null }
-interface FavActivityRow   { id: number; activityId: number;   activity:   { name: string; imageUrl: string }; avgRating: number | null }
+interface FavRestaurantRow { id: number; restaurantId: number; restaurant: { name: string; imageUrl: string }; avgRating: number | null; createdAt: string }
+interface FavStayRow       { id: number; stayId: number;       stay:       { name: string; imageUrl: string }; avgRating: number | null; createdAt: string }
+interface FavActivityRow   { id: number; activityId: number;   activity:   { name: string; imageUrl: string }; avgRating: number | null; createdAt: string }
 interface FavListResponse  { restaurants: FavRestaurantRow[]; stays: FavStayRow[]; activities: FavActivityRow[] }
 
 // ─── 서버 코스 응답 타입 ───────────────────────────────────────────────────────
@@ -253,13 +253,14 @@ export const travelService = {
     const { data } = await apiClient.get<FavListResponse>('/me/favorites/list');
     const toRating = (avg: number | null) =>
       avg != null ? String(avg) : '-';
-    const places: SavedPlace[] = [];
+    const places: (SavedPlace & { _createdAt: string })[] = [];
     for (const r of data.restaurants ?? []) {
       places.push({
         itemId: r.restaurantId, domain: 'restaurant',
         name: r.restaurant.name, category: '식당',
         location: '식당', rating: toRating(r.avgRating),
         image: r.restaurant.imageUrl || PLACEHOLDER.restaurant,
+        _createdAt: r.createdAt,
       });
     }
     for (const s of data.stays ?? []) {
@@ -268,6 +269,7 @@ export const travelService = {
         name: s.stay.name, category: '숙소',
         location: '숙소', rating: toRating(s.avgRating),
         image: s.stay.imageUrl || PLACEHOLDER.stay,
+        _createdAt: s.createdAt,
       });
     }
     for (const a of data.activities ?? []) {
@@ -276,9 +278,11 @@ export const travelService = {
         name: a.activity.name, category: '액티비티',
         location: '액티비티', rating: toRating(a.avgRating),
         image: a.activity.imageUrl || PLACEHOLDER.activity,
+        _createdAt: a.createdAt,
       });
     }
-    return places;
+    places.sort((a, b) => new Date(b._createdAt).getTime() - new Date(a._createdAt).getTime());
+    return places.map(({ _createdAt: _, ...rest }) => rest);
   },
 
   /** POST /me/favorites — 즐겨찾기 추가 */
