@@ -105,7 +105,7 @@ export class UsersService {
          JOIN restaurants r ON r.id = fr.restaurant_id
          LEFT JOIN restaurant_ratings rr ON rr.restaurant_id = r.id AND rr.deleted_at IS NULL
          WHERE fr.user_id = $1
-         GROUP BY fr.id, fr.restaurant_id, r.name, r.image_url`,
+         GROUP BY fr.id, fr.restaurant_id, r.name, r.image_url, fr.created_at`,
         [userId],
       ),
       mgr.query(
@@ -117,7 +117,7 @@ export class UsersService {
          JOIN stays s ON s.id = fs.stay_id
          LEFT JOIN stay_ratings sr ON sr.stay_id = s.id AND sr.deleted_at IS NULL
          WHERE fs.user_id = $1
-         GROUP BY fs.id, fs.stay_id, s.name, s.image_url`,
+         GROUP BY fs.id, fs.stay_id, s.name, s.image_url, fs.created_at`,
         [userId],
       ),
       mgr.query(
@@ -129,7 +129,7 @@ export class UsersService {
          JOIN activities a ON a.id = fa.activity_id
          LEFT JOIN activity_ratings ar ON ar.activity_id = a.id AND ar.deleted_at IS NULL
          WHERE fa.user_id = $1
-         GROUP BY fa.id, fa.activity_id, a.name, a.image_url`,
+         GROUP BY fa.id, fa.activity_id, a.name, a.image_url, fa.created_at`,
         [userId],
       ),
     ]);
