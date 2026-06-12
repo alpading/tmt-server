@@ -49,10 +49,6 @@ export class CreateActivityDto {
   @IsNotEmpty()
   imageUrl: string;
 
-  @IsString()
-  @IsNotEmpty()
-  address: string;
-
   @IsNumber()
   latitude: number;
 

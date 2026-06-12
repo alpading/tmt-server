@@ -50,9 +50,6 @@ export class Restaurant {
   @Column({ name: 'image_url', type: 'text' })
   imageUrl: string;
 
-  @Column({ length: 200 })
-  address: string;
-
   @Column({ type: 'decimal', precision: 10, scale: 7 })
   latitude: number;
 

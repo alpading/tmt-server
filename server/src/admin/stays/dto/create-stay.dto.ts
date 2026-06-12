@@ -49,10 +49,6 @@ export class CreateStayDto {
   @IsNotEmpty()
   imageUrl: string;
 
-  @IsString()
-  @IsNotEmpty()
-  address: string;
-
   @IsNumber()
   latitude: number;
 

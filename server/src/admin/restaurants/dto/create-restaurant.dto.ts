@@ -53,10 +53,6 @@ export class CreateRestaurantDto {
   @IsNotEmpty()
   imageUrl: string;
 
-  @IsString()
-  @IsNotEmpty()
-  address: string;
-
   @IsNumber()
   latitude: number;
 
