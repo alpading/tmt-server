@@ -8,6 +8,7 @@ import { ERROR_CODE } from '../common/constants/error-codes';
 import { UserPreference } from '../users/user-preference.entity';
 
 type Domain = 'restaurants' | 'stays' | 'activities';
+type SnapConds = Partial<Record<Domain, string>>;
 
 export interface ItemResult {
   id: number;
@@ -28,6 +29,12 @@ const DC: Record<Domain, DomainConfig> = {
   restaurants: { table: 'restaurants', ratingTable: 'restaurant_ratings', fkCol: 'restaurant_id', districtCol: 'district_id' },
   stays:       { table: 'stays',       ratingTable: 'stay_ratings',       fkCol: 'stay_id',        districtCol: 'district_id' },
   activities:  { table: 'activities',  ratingTable: 'activity_ratings',   fkCol: 'activity_id',    districtCol: 'district_id' },
+};
+
+const DOMAIN_MAP: Record<string, Domain> = {
+  restaurant: 'restaurants',
+  stay:       'stays',
+  activity:   'activities',
 };
 
 interface QueryOptions {
@@ -56,7 +63,6 @@ function buildSchedule(
   activities: ItemResult[],
   stay: ItemResult | null,
 ) {
-  // DB에 같은 이름의 중복 행이 있을 경우를 대비해 id 기준으로 중복 제거
   const uniqueRestaurants = restaurants.filter(
     (r, idx, arr) => arr.findIndex((x) => x.id === r.id) === idx,
   );
@@ -85,7 +91,6 @@ export class ThemesService {
     return themes.map((t) => ({
       id: t.id,
       name: t.name.replace('{MBTI}', user?.mbti ?? ''),
-      description: t.description,
       imageUrl: t.imageUrl,
     }));
   }
@@ -98,15 +103,17 @@ export class ThemesService {
     ]);
 
     if (!theme) throw new NotFoundException(ERROR_CODE.RESOURCE_NOT_FOUND);
-    if (!user) throw new NotFoundException(ERROR_CODE.RESOURCE_NOT_FOUND);
+    if (!user)  throw new NotFoundException(ERROR_CODE.RESOURCE_NOT_FOUND);
+
+    const snapConds = await this.buildSnapConditions(themeId);
 
     switch (themeId) {
-      case 1:  return this.theme1(districtId, days);
-      case 2:  return this.theme2(districtId, days);
+      case 1:  return this.theme1(districtId, days, snapConds);
+      case 2:  return this.theme2(districtId, days, snapConds);
       case 3:  return this.theme3(districtId, days, prefs);
-      case 4:  return this.theme4(districtId, days);
+      case 4:  return this.theme4(districtId, days, snapConds);
       case 5:  return this.theme5(districtId, days);
-      case 6:  return this.theme6(districtId, days);
+      case 6:  return this.theme6(districtId, days, snapConds);
       case 7:  return this.theme7(districtId, days);
       case 8:  return this.theme8(districtId, days, user.mbti);
       case 9:  return this.theme9(districtId, days);
@@ -118,13 +125,40 @@ export class ThemesService {
     }
   }
 
+  // theme_mappings → preferences → preference_categories 조인해서 domain별 snap 조건 조합
+  private async buildSnapConditions(themeId: number): Promise<SnapConds> {
+    const rows: Array<{ domain: string; snapshot_col: string; target_val: number }> =
+      await this.themeRepo.manager.query(
+        `SELECT pc.domain, p.snapshot_col, tm.target_val
+         FROM theme_mappings tm
+         JOIN preferences p ON p.id = tm.preference_id
+         JOIN preference_categories pc ON pc.id = p.preference_category_id
+         WHERE tm.theme_id = $1
+           AND p.snapshot_col IS NOT NULL
+         ORDER BY pc.domain, tm.id`,
+        [themeId],
+      );
+
+    const grouped = new Map<Domain, string[]>();
+    for (const row of rows) {
+      const domain = DOMAIN_MAP[row.domain];
+      if (!domain) continue;
+      if (!grouped.has(domain)) grouped.set(domain, []);
+      grouped.get(domain)!.push(`rr.${row.snapshot_col} >= ${row.target_val}`);
+    }
+
+    const result: SnapConds = {};
+    for (const [domain, conds] of grouped) {
+      result[domain] = conds.join(' AND ');
+    }
+    return result;
+  }
+
   private async queryItems(opts: QueryOptions): Promise<ItemResult[]> {
     const dc = DC[opts.domain];
     const { districtId, limit = 10, entityFilters = [], caseWhenCond, extraJoin = '', extraParams = [] } = opts;
     const params: (string | number)[] = [districtId, ...extraParams];
 
-    // score = (1 + 0.5 × (filtered_avg - absolute_avg)) × absolute_avg
-    // filtered_avg가 NULL(타겟 그룹 리뷰 없음)이면 deviation=0 → score=absolute_avg
     const scoreExpr = caseWhenCond
       ? `AVG(rr.overall_rating) * (1 + 0.5 * COALESCE(AVG(CASE WHEN ${caseWhenCond} THEN rr.overall_rating::float END) - AVG(rr.overall_rating), 0))`
       : `AVG(rr.overall_rating)`;
@@ -214,11 +248,9 @@ export class ThemesService {
   }
 
   // Theme 1: 스릴만점 액티비티 여행
-  private async theme1(districtId: number, days: number) {
-    const rLimit = days * 3;
-    const aLimit = days;
+  private async theme1(districtId: number, days: number, snapConds: SnapConds) {
     const [restaurants, stays, activities] = await Promise.all([
-      this.queryItems({ domain: 'restaurants', districtId, limit: rLimit }),
+      this.queryItems({ domain: 'restaurants', districtId, limit: days * 3 }),
       days > 1
         ? this.queryWithFallback(
             { domain: 'stays', districtId, limit: 1, entityFilters: ['e.stay_category_id = 5'] },
@@ -228,22 +260,22 @@ export class ThemesService {
       this.queryItems({
         domain: 'activities',
         districtId,
-        limit: aLimit,
+        limit: days,
         entityFilters: ['e.is_active = true'],
-        caseWhenCond: 'rr.act_active_snap >= 3',
+        caseWhenCond: snapConds.activities,
       }),
     ]);
     return buildSchedule(days, restaurants, activities, stays[0] ?? null);
   }
 
   // Theme 2: 인스타 감성가득 핫플레이스
-  private async theme2(districtId: number, days: number) {
+  private async theme2(districtId: number, days: number, snapConds: SnapConds) {
     const [restaurants, stays, activities] = await Promise.all([
-      this.queryItems({ domain: 'restaurants', districtId, limit: days * 3, caseWhenCond: 'rr.res_interior_snap >= 3' }),
+      this.queryItems({ domain: 'restaurants', districtId, limit: days * 3, caseWhenCond: snapConds.restaurants }),
       days > 1
-        ? this.queryItems({ domain: 'stays', districtId, limit: 1, caseWhenCond: 'rr.stay_view_snap >= 2 AND rr.stay_interior_snap >= 2' })
+        ? this.queryItems({ domain: 'stays', districtId, limit: 1, caseWhenCond: snapConds.stays })
         : Promise.resolve([]),
-      this.queryItems({ domain: 'activities', districtId, limit: days, caseWhenCond: 'rr.act_view_snap >= 3' }),
+      this.queryItems({ domain: 'activities', districtId, limit: days, caseWhenCond: snapConds.activities }),
     ]);
     return buildSchedule(days, restaurants, activities, stays[0] ?? null);
   }
@@ -282,13 +314,13 @@ export class ThemesService {
   }
 
   // Theme 4: 지친 당신을 위한 감성 힐링 여행
-  private async theme4(districtId: number, days: number) {
+  private async theme4(districtId: number, days: number, snapConds: SnapConds) {
     const [restaurants, stays, activities] = await Promise.all([
-      this.queryItems({ domain: 'restaurants', districtId, limit: days * 3, caseWhenCond: 'rr.res_interior_snap >= 2 AND rr.res_service_snap >= 2' }),
+      this.queryItems({ domain: 'restaurants', districtId, limit: days * 3, caseWhenCond: snapConds.restaurants }),
       days > 1
-        ? this.queryItems({ domain: 'stays', districtId, limit: 1, caseWhenCond: 'rr.stay_view_snap >= 2 AND rr.stay_interior_snap >= 2 AND rr.stay_noise_snap >= 2' })
+        ? this.queryItems({ domain: 'stays', districtId, limit: 1, caseWhenCond: snapConds.stays })
         : Promise.resolve([]),
-      this.queryItems({ domain: 'activities', districtId, limit: days, caseWhenCond: 'rr.act_healing_snap >= 2 AND rr.act_view_snap >= 2' }),
+      this.queryItems({ domain: 'activities', districtId, limit: days, caseWhenCond: snapConds.activities }),
     ]);
     return buildSchedule(days, restaurants, activities, stays[0] ?? null);
   }
@@ -304,25 +336,27 @@ export class ThemesService {
   }
 
   // Theme 6: 부모님과 함께하는 효도 여행
-  private async theme6(districtId: number, days: number) {
+  private async theme6(districtId: number, days: number, snapConds: SnapConds) {
     const extraJoin = 'LEFT JOIN users u ON u.id = rr.user_id';
     const ageCond = "u.birth_date <= rr.created_at - INTERVAL '50 years'";
+    const merge = (snapCond?: string) =>
+      snapCond ? `${ageCond} AND ${snapCond}` : ageCond;
 
     const [restaurants, stays, activities] = await Promise.all([
       this.queryItems({
         domain: 'restaurants', districtId, limit: days * 3, extraJoin,
-        caseWhenCond: `${ageCond} AND rr.res_mild_snap >= 2 AND rr.res_service_snap >= 2`,
+        caseWhenCond: merge(snapConds.restaurants),
       }),
       days > 1
         ? this.queryItems({
             domain: 'stays', districtId, limit: 1,
             entityFilters: ['e.stay_category_id IN (1, 3, 6)'], extraJoin,
-            caseWhenCond: `${ageCond} AND rr.stay_view_snap >= 3`,
+            caseWhenCond: merge(snapConds.stays),
           })
         : Promise.resolve([]),
       this.queryItems({
         domain: 'activities', districtId, limit: days, extraJoin,
-        caseWhenCond: `${ageCond} AND rr.act_view_snap >= 2 AND rr.act_healing_snap >= 2`,
+        caseWhenCond: merge(snapConds.activities),
       }),
     ]);
     return buildSchedule(days, restaurants, activities, stays[0] ?? null);

@@ -8,9 +8,6 @@ export class Theme {
   @Column({ length: 50 })
   name: string;
 
-  @Column({ type: 'text' })
-  description: string;
-
   @Column({ name: 'image_url', type: 'text' })
   imageUrl: string;
 
