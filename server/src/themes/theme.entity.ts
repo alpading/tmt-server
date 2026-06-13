@@ -1,6 +1,6 @@
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity('theme')
+@Entity('themes')
 export class Theme {
   @PrimaryGeneratedColumn()
   id: number;
