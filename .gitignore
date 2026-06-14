@@ -30,5 +30,5 @@ image/
 
 .understand-anything/
 
-# docs (local reference only)
-docs/
+# docs
+docs/api/
