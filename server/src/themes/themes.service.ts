@@ -414,7 +414,7 @@ export class ThemesService {
   private async theme11(districtId: number, days: number) {
     const [restaurants, stays, activities] = await Promise.all([
       this.queryItems({ domain: 'restaurants', districtId, limit: days * 3, entityFilters: ['e.has_baby_chair = true'] }),
-      days > 1 ? this.queryItems({ domain: 'stays', districtId, limit: 1, entityFilters: ['e.stay_category_id != 4'] }) : Promise.resolve([]),
+      days > 1 ? this.queryItems({ domain: 'stays', districtId, limit: 1 }) : Promise.resolve([]),
       this.queryItems({ domain: 'activities', districtId, limit: days, entityFilters: ['e.is_kid_friendly = true'] }),
     ]);
     return buildSchedule(days, restaurants, activities, stays[0] ?? null);
