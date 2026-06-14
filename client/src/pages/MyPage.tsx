@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import { Search, User, Heart, Star, Home, Compass, Bookmark, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { authService } from '../services/authService';
 import { travelService, mapSavedCourse } from '../services/travelService';
 import { SavedCourse, SavedPlace } from '../types';
 
@@ -12,6 +13,12 @@ export default function MyPage() {
 
   const handleLogout = async () => {
     await logout();
+    navigate('/login');
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!window.confirm('정말 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) return;
+    await authService.deleteAccount();
     navigate('/login');
   };
   const [activePlaceCategory, setActivePlaceCategory] = useState('전체');
@@ -122,12 +129,20 @@ export default function MyPage() {
                   <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">저장된 장소</span>
                 </div>
               </div>
-              <button
-                onClick={handleLogout}
-                className="text-xs font-bold text-neutral-400 border-b border-neutral-300 pb-0.5 hover:text-neutral-600 transition-colors cursor-pointer mt-3"
-              >
-                로그아웃
-              </button>
+              <div className="flex gap-3 mt-3">
+                <button
+                  onClick={handleLogout}
+                  className="text-xs font-bold text-neutral-400 border-b border-neutral-300 pb-0.5 hover:text-neutral-600 transition-colors cursor-pointer"
+                >
+                  로그아웃
+                </button>
+                <button
+                  onClick={handleDeleteAccount}
+                  className="text-xs font-bold text-red-400 border-b border-red-300 pb-0.5 hover:text-red-600 transition-colors cursor-pointer"
+                >
+                  회원 탈퇴
+                </button>
+              </div>
             </div>
           </div>
           <div className="mt-6 md:mt-0 flex flex-col gap-2 w-full md:w-auto">

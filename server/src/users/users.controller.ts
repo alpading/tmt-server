@@ -47,4 +47,10 @@ export class UsersController {
   removeFavorite(@GetUser() user: RequestUser, @Body() dto: FavoriteDto) {
     return this.service.removeFavorite(user.id, dto);
   }
+
+  @Delete()
+  @HttpCode(204)
+  deleteAccount(@GetUser() user: RequestUser) {
+    return this.service.deleteAccount(user.id);
+  }
 }

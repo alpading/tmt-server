@@ -227,6 +227,14 @@ export const authService = {
   },
 
   /**
+   * DELETE /me  (회원 탈퇴 — 소프트 삭제)
+   */
+  async deleteAccount(): Promise<void> {
+    await apiClient.delete('/me');
+    tokenStore.clear();
+  },
+
+  /**
    * PUT /me/preference  (성향 퀴즈 결과 저장)
    * answers: { [questionId]: optionIdx(0=강함, 1=보통, 2=약함) }
    * prefKeyMap: { [questionId]: prefKey } — DB에서 받은 매핑

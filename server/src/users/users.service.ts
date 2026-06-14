@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { User } from './user.entity';
 import { UserPreference } from './user-preference.entity';
 import { FavoriteRestaurant } from '../favorites/favorite-restaurant.entity';
@@ -30,11 +30,17 @@ export class UsersService {
   ) {}
 
   findByLoginId(loginId: string) {
-    return this.userRepo.findOne({ where: { loginId } });
+    return this.userRepo.findOne({ where: { loginId, deletedAt: IsNull() } });
   }
 
   findById(id: number) {
-    return this.userRepo.findOne({ where: { id } });
+    return this.userRepo.findOne({ where: { id, deletedAt: IsNull() } });
+  }
+
+  async deleteAccount(userId: number): Promise<void> {
+    const user = await this.userRepo.findOne({ where: { id: userId, deletedAt: IsNull() } });
+    if (!user) throw new NotFoundException(ERROR_CODE.RESOURCE_NOT_FOUND);
+    await this.userRepo.update(userId, { deletedAt: new Date(), refreshToken: null });
   }
 
   findPreferencesByUserId(userId: number) {
